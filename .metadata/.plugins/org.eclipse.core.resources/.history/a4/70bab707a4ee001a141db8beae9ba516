@@ -46,7 +46,7 @@ public class SequenceImpl implements Sequence{
 	}
 	
 	
-//permet de savoir si les éléments de 't1' à partir de 'posts1' sont inclus dans 't2' à partir de 'post2'
+
 	private boolean resteSuitePresent(Object[] t1, Object[] t2, int post1, int post2) {
 		int pos = post2;
 		for(int i = post1; i < t1.length; i++) {

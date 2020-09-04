@@ -26,8 +26,8 @@ public class SequenceImpl implements Sequence{
 			//si l'élément de t1 est présent dans t2, on cherche dans la suite de t2 l'élément suivant de t1
 			if(presentSuite(t1[i], t2, pos)) {
 				
-				if(!jokerUsed && resteSuitePresent(t1, t2, i+1, pos)) {//cas où on zappe potentiellement la suite alors qu'elle est inclue avant 'pos' dans t2
-					return true;
+				if(presentSuite(t1[i+1], t2, pos])) {
+					
 				}
 				
 				pos = positionSuite(t1[i], t2, pos);
@@ -46,23 +46,7 @@ public class SequenceImpl implements Sequence{
 	}
 	
 	
-//permet de savoir si les éléments de 't1' à partir de 'posts1' sont inclus dans 't2' à partir de 'post2'
-	private boolean resteSuitePresent(Object[] t1, Object[] t2, int post1, int post2) {
-		int pos = post2;
-		for(int i = post1; i < t1.length; i++) {
-			//si l'élément de t1 est présent dans t2, on cherche dans la suite de t2 l'élément suivant de t1
-			if(presentSuite(t1[i], t2, pos)) {
-				pos = positionSuite(t1[i], t2, pos);
-			}
-			else {
-				return false;
-			}
-			
-		}
-		
-		return true;
-	}
-	
+
 
 	//fonction qui permet de savoir si l'Object 'o' est present dans le tableau 't' à partir de la position 'pos'
 	private boolean presentSuite(Object o, Object[] t, int pos) {
