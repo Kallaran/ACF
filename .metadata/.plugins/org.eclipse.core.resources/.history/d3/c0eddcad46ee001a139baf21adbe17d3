@@ -1,0 +1,116 @@
+package p1;
+
+
+import static org.junit.Assert.*;
+import org.junit.Test;
+import test0.Sequence;
+
+
+public class MainTest {
+	Sequence s= new SequenceImpl();
+	
+	@Test
+	public void test1() { //cas simple
+		Integer[] t1 = new Integer[] { 1, 2, 3 };
+		Integer[] t2 = new Integer[] { 1, 2, 3, 4};
+		
+		assertTrue(s.subSeq(t1,t2));
+	}
+
+	@Test
+	public void test2() { //cas où t1 ne se trouve pas au début de t2
+		Integer[] t1 = new Integer[] { 2, 3 };
+		Integer[] t2 = new Integer[] { 1, 2, 3, 4};
+		
+		assertTrue(s.subSeq(t1,t2));
+	}
+	
+	@Test
+	public void test3() { //cas où un élément se trouve entre les 2 éléments recherchés
+		Integer[] t1 = new Integer[] { 2, 4 };
+		Integer[] t2 = new Integer[] { 1, 2, 3, 4};
+		
+		assertTrue(s.subSeq(t1,t2));
+	}
+	
+	@Test
+	public void test4() { //cas où l'élément de fin t1 ne se trouve pas dans t2
+		Integer[] t1 = new Integer[] { 2, 4, 6};
+		Integer[] t2 = new Integer[] { 1, 2, 4, 5};
+		
+		assertTrue(s.subSeq(t1,t2));
+	}
+	
+	
+	@Test
+	public void test5() { //cas où un élément au milieu de t1 ne se trouve pas dans t2
+		Integer[] t1 = new Integer[] { 2, 4, 5};
+		Integer[] t2 = new Integer[] { 1, 2, 3, 5};
+		
+		assertTrue(s.subSeq(t1,t2));
+	}
+	
+	@Test
+	public void test6() { //cas où l'élément de tête de t1 ne se trouve pas dans t2
+		Integer[] t1 = new Integer[] { 1, 2, 5};
+		Integer[] t2 = new Integer[] { 2, 3, 5};
+		
+		assertTrue(s.subSeq(t1,t2));
+	}
+	
+	@Test
+	public void test7() { //cas où t1 et t2 ne sont pas croissants
+		Integer[] t1 = new Integer[] { 6, 2, 5};
+		Integer[] t2 = new Integer[] { 4, 6, 2, 7, 5};
+		
+		assertTrue(s.subSeq(t1,t2));
+	}
+	
+	@Test
+	public void test8() { //cas où un élément de t1 se trouve plusieurs fois dans t2
+		Integer[] t1 = new Integer[] { 1, 2, 5};
+		Integer[] t2 = new Integer[] { 4, 1, 2, 2, 5};
+		
+		assertTrue(s.subSeq(t1,t2));
+	}
+	
+	@Test
+	public void test9() { //cas où plusieurs éléments de t1 se trouvent plusieurs fois dans t2
+		Integer[] t1 = new Integer[] { 1, 2, 5};
+		Integer[] t2 = new Integer[] { 4, 1, 2, 2, 1, 5};
+		
+		assertTrue(s.subSeq(t1,t2));
+	}
+	
+	@Test
+	public void test10() { //cas où 2 éléments de t1 ne sont pas dans t2
+		Integer[] t1 = new Integer[] { 1, 2, 5, 6, 3};
+		Integer[] t2 = new Integer[] { 4, 1, 2, 2, 1, 5};
+		
+		assertTrue(!s.subSeq(t1,t2));
+	}
+	
+	@Test
+	public void test11() { 
+		Integer[] t1 = new Integer[] { 1, 2, 5};
+		Integer[] t2 = new Integer[] { 4, 1, 2, 2, 1, 5};
+		
+		assertTrue(s.subSeq(t1,t2));
+	}
+	
+	@Test
+	public void test12() { 
+		Integer[] t1 = new Integer[] { 1, 2, 5};
+		Integer[] t2 = new Integer[] { 4, 1, 2, 2, 1, 5, 1, 2, 5};
+		
+		assertTrue(s.subSeq(t1,t2));
+	}
+	
+	@Test
+	public void test13() { 
+		Integer[] t1 = new Integer[] { 1, 2, 2, 5};
+		Integer[] t2 = new Integer[] { 4, 1, 2, 2, 1, 5, 1, 2, 5};
+		
+		assertTrue(s.subSeq(t1,t2));
+	}
+}

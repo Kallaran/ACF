@@ -1,0 +1,83 @@
+package p1;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
+
+import test0.Sequence;
+
+public class SequenceImpl implements Sequence{
+
+
+
+/**
+ * @param l1
+ * @param l2
+ * @return true if list t1 is a sublist of list t2, where at most one element of t1 may not occur in t2
+ */
+
+	public boolean subSeq(Object[] t1, Object[] t2) {
+		
+		
+		
+		if (t1.length < 1) {
+			return false;
+		}
+		if (t2.length < 1) {
+			return false;
+		}
+		
+		int pos = -1;
+		boolean jokerUsed = false;
+
+		for(int i = 0; i < t1.length; i++) {
+			
+			//si l'élément de t1 est présent dans t2, on cherche dans la suite de t2 l'élément suivant de t1
+			if(presentSuite(t1[i], t2, pos)) {
+				pos = positionSuite(t1[i], t2, pos);
+			}
+			else if(!jokerUsed) {				
+				jokerUsed = true;
+			}
+			else {
+				return false;
+			}
+			
+		}
+		return true;
+		
+	}
+	
+	
+
+
+	//fonction qui permet de savoir si l'Object 'o' est present dans le tableau 't' à partir de la position 'pos'
+	private boolean presentSuite(Object o, Object[] t, int pos) {
+		
+		for(int i = pos + 1; i < t.length; i++) {
+			if(t[i] == o) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	//on admet que o se trouve dans t
+	private int positionSuite(Object o, Object[] t, int pos) {
+	
+		for(int i = pos + 1; i < t.length; i++) {
+			if(t[i] == o) {
+				return i;
+			}
+		}
+		return 0; //on n'est pas censé arriver ici		
+	}
+
+
+
+
+	
+
+}
+
