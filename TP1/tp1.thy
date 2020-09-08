@@ -23,7 +23,7 @@ lemma "\<not>(A \<and> B) \<longleftrightarrow> \<not>A \<or> \<not>B"
 
 
 
-(* Exercice 3*)
+(* Exercice 3 *)
 
 lemma  "\<forall>(x::int) y  z. x + y > x + z \<longrightarrow> x + x > y + z"
   nitpick
@@ -48,5 +48,27 @@ lemma "\<forall>(x::int)yz. x > y \<and> z > 0 \<longrightarrow> x * z > y * z"
 lemma "\<exists>x. P(f(x)) \<longrightarrow> (\<forall>x. P(f(x)))"
   apply auto
   done(*formule valide*)
+
+
+
+(* Exercice 4 *)
+
+lemma commu :"\<forall> (A::int)B. (A + B) = (B + A) "
+  apply auto
+  done
+
+lemma asso : "\<forall> (A::int) B C. (A + B) + C = A + (B + C)"
+  apply auto
+  done
+
+lemma neutre : "\<exists>  (A::int). A + B = B"
+  apply auto
+  done
+
+(* Exercice 5 *)
+
+lemma appendCommu : "\<forall> a b. (length a#b)  = (length  b#a)  "
+  oops
+
 
 end
