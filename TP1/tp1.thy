@@ -67,8 +67,15 @@ lemma neutre : "\<exists>  (A::int). A + B = B"
 
 (* Exercice 5 *)
 
-lemma appendCommu : "\<forall> a b. (length a#b)  = (length  b#a)  "
+lemma appendCommu : "( append [a] [b] )  = ( append [b] [a] ) "
   oops
+
+
+lemma appendAsso :"( append ( append [a] [b] ) [c] )  = ( append [a] ( append [b] [c] ) ) "
+  apply auto
+  done
+
+
 
 
 end
