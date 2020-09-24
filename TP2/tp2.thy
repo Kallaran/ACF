@@ -18,6 +18,7 @@ value "member (1::int) []"
 
 (* Exercice 2 *)
 
+
 fun isSet:: "'a list \<Rightarrow> bool"
   where
 "(isSet [])  = True"|
@@ -51,7 +52,29 @@ lemma " (member (a::int) (clean (b#c))) \<longrightarrow> ((a=b) = (\<not>(membe
 (* Exercice 5 *)
 
 lemma "(isSet (clean l))"
+  nitpick
   sorry
 
+
+(* Exercice 6 *)
+
+fun delete:: "'a \<Rightarrow> 'a list \<Rightarrow> 'a list"
+  where
+"(delete x []) = []"|
+"(delete a (b#c)) = (if (a=b)then (delete a c) else b#(delete a c))  "
+
+value "delete 2 [(1::int),2,3]"
+value "delete 2 [(1::int),1,3]"
+value "delete 2 [(1::int),1,2,2,2,4]"
+value "delete 2 [(1::int)]"
+
+(* Exercice 7 *)
+
+(* un élément supprimé avec delete dans un ensemble ne doit plus appartenir à cet ensemble *)
+lemma "\<not>(member a (delete a l))"
+  nitpick
+  apply (induct l)
+  apply auto
+  done
 
 end
