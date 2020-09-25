@@ -26,7 +26,7 @@ fun isSet:: "'a list \<Rightarrow> bool"
 
 value "isSet [(1::int), 2, 3]"
 value "isSet [(1::int), 1, 3]"
-value "isSet []" (* error, why ? *)
+value "isSet ([]::int list)" 
  
 
 (* Exercice 3 *)
@@ -44,17 +44,27 @@ value "clean [(1::int)]"
 
 (* Exercice 4 *)
 
-lemma " (member (a::int) (clean (b#c))) \<longrightarrow> ((a=b) = (\<not>(member a c))) \<or> ((a\<noteq>b) \<and> (member a c))  "
+lemma "  (member a l) = (member a (clean l)) "
   nitpick
-  sorry
+  apply auto
+  apply (induct l)
+  apply auto
+  apply (induct l)
+  apply auto
+  by (metis (full_types) tp2.member.simps(2))
 
 
 (* Exercice 5 *)
 
 lemma "(isSet (clean l))"
   nitpick
+  apply (induct l)
+   apply auto[1]
+  apply (induct l)
+   apply auto
+  apply (induct l)
+   apply auto
   sorry
-
 
 (* Exercice 6 *)
 
@@ -76,5 +86,72 @@ lemma "\<not>(member a (delete a l))"
   apply (induct l)
   apply auto
   done
+
+(* si un élément est présent dans l'ensemble et qu'il n'est pas l'élément à supprimer, *)
+(* alors il doit rester présent dans cet ensemble *)
+lemma "((member a l) \<and> ( a \<noteq> b) ) \<longrightarrow>  ( member a (delete b l))"
+  nitpick
+  apply auto
+  apply (induct l)
+  apply auto
+  done
+
+
+(* Exercice 8 *)
+
+fun intersection:: " 'a list \<Rightarrow> 'a list \<Rightarrow> 'a list"
+  where
+"(intersection [] []) = []" |
+"(intersection [] _ ) = []" |
+"(intersection (a#b) c) = (if (member a c) then (a#(intersection b c)) else (intersection b c))"
+
+
+value "(intersection [(1::int), 2, 3] [3, 4])"
+value "(intersection [(1::int), 2, 3] [1, 3, 3])"
+
+
+(* Exercice 9 *)
+
+(* si un élément est membre à la fois dans les 2 listes alors il est présent dans l'intersection des 2 *)
+lemma "((member a l) \<and> (member a m)) \<longrightarrow> (member a (intersection l m))"
+  apply auto
+  apply (induct l)
+  apply auto
+  done
+
+
+(* Exercice 10 *)
+
+(* vérifions que le résultat de 'intersection' satisfait le 'isSet' *)
+lemma "(isSet l) \<and> (isSet m) \<longrightarrow> ( isSet (intersection l m))"
+  apply auto
+  apply (induct l)
+   apply auto[1]
+   apply (induct m)
+    apply auto[1]
+   apply auto
+    apply (induct l)
+     apply (induct l)
+      apply auto
+  sorry
+
+
+(* Exercice 11 *)
+
+fun union:: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list"
+  where
+"(union [] []) = []" |
+"(union [] a ) = a" |
+"(union (a#b) l) = (clean (a#(union b l))) "
+
+value "(union [(1::int), 2, 3] [4,5,6])"
+value "(union [(1::int), 2, 3, 4] [4,5,6,6])"
+
+(* Exercice 12 *)
+
+(* si un élément est présent dans  ... *)
+
+
+
 
 end
