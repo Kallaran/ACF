@@ -114,7 +114,6 @@ value "(intersection [(1::int), 2, 3] [1, 3, 3])"
 
 (* si un élément est membre à la fois dans les 2 listes alors il est présent dans l'intersection des 2 *)
 lemma "((member a l) \<and> (member a m)) \<longrightarrow> (member a (intersection l m))"
-  nitpick
   apply auto
   apply (induct l)
   apply auto
@@ -125,7 +124,6 @@ lemma "((member a l) \<and> (member a m)) \<longrightarrow> (member a (intersect
 
 (* vérifions que le résultat de 'intersection' satisfait le 'isSet' *)
 lemma "(isSet l) \<and> (isSet m) \<longrightarrow> ( isSet (intersection l m))"
-  nitpick
   apply auto
   apply (induct l)
    apply auto[1]
