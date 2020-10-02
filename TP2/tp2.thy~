@@ -141,15 +141,60 @@ lemma "(isSet l) \<and> (isSet m) \<longrightarrow> ( isSet (intersection l m))"
 fun union:: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list"
   where
 "(union [] []) = []" |
-"(union [] a ) = a" |
+"(union [] a ) = (clean a)" |
 "(union (a#b) l) = (clean (a#(union b l))) "
 
 value "(union [(1::int), 2, 3] [4,5,6])"
 value "(union [(1::int), 2, 3, 4] [4,5,6,6])"
+value "(union [] [(0::int),0])"
+
 
 (* Exercice 12 *)
 
-(* si un élément est présent dans  ... *)
+(* si un élément est présent dans un emsemble alors il est présent dans le résultat *)
+lemma "(member a l) \<longrightarrow> (member a (union b l))"
+  nitpick
+  apply auto
+  apply (induct l)
+  apply auto[1]
+  apply auto
+  apply (induct l)
+  apply auto
+  sorry
+
+
+(* Exercice 13 *)
+
+lemma " (isSet (union l  m))"
+  nitpick
+  apply (induct l)
+   apply auto
+  sorry
+
+(* Exercice 14 *)
+
+fun equal::"'a list \<Rightarrow> 'a list \<Rightarrow> bool"
+  where
+"(equal [] []) = True"|
+"(equal [] _ ) = False" |
+"(equal _ []) = False" |
+"(equal (a#b) (c#d)) = (if (a=c) then (equal b d) else False)"
+
+
+(* Exercice 15 *)
+
+(* si l et m sont égaux et que a est dans l alors a est également dans m *)
+lemma "(equal l m) \<and> (member a l) \<longrightarrow> ( member a m)"
+  nitpick
+  apply auto
+  apply (induct l)
+   apply auto
+  sorry
+
+
+
+
+
 
 
 

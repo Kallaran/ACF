@@ -2,12 +2,6 @@ theory Scratch
   imports Main
 begin
 
-(* NB :
- (A\<and>B)\<longrightarrow> C
-est identique a 
- A \<longrightarrow> (B\<longrightarrow>C)
-*)
-
   fun remove:: "'a \<Rightarrow> 'a list \<Rightarrow> 'a list"
   where
     "remove x [] = []" |

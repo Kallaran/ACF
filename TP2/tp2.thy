@@ -44,8 +44,7 @@ value "clean [(1::int)]"
 
 (* Exercice 4 *)
 
-lemma "  (member a l) = (member a (clean l)) "
-  nitpick
+lemma lem4: "  (member a l) = (member a (clean l)) "
   apply auto
   apply (induct l)
   apply auto
@@ -56,15 +55,10 @@ lemma "  (member a l) = (member a (clean l)) "
 
 (* Exercice 5 *)
 
-lemma "(isSet (clean l))"
-  nitpick
-  apply (induct l)
-   apply auto[1]
+lemma lem5: "(isSet (clean l))"
   apply (induct l)
    apply auto
-  apply (induct l)
-   apply auto
-  sorry
+  by (meson lem4)
 
 (* Exercice 6 *)
 
@@ -81,21 +75,25 @@ value "delete 2 [(1::int)]"
 (* Exercice 7 *)
 
 (* un élément supprimé avec delete dans un ensemble ne doit plus appartenir à cet ensemble *)
-lemma "\<not>(member a (delete a l))"
-  nitpick
+lemma lem71: "\<not>(member a (delete a l))"
   apply (induct l)
   apply auto
   done
 
 (* si un élément est présent dans l'ensemble et qu'il n'est pas l'élément à supprimer, *)
 (* alors il doit rester présent dans cet ensemble *)
-lemma "((member a l) \<and> ( a \<noteq> b) ) \<longrightarrow>  ( member a (delete b l))"
-  nitpick
+lemma lem72: "((member a l) \<and> ( a \<noteq> b) ) \<longrightarrow>  ( member a (delete b l))"
   apply auto
   apply (induct l)
   apply auto
   done
 
+lemma lem72prof: "(isSet l) \<longrightarrow> (x\<noteq>y) \<longrightarrow>(member y (delete x l)  \<longleftrightarrow>(member y l))"
+  apply auto
+   apply (induct l)
+    apply auto
+   apply (metis (full_types) tp2.member.simps(2))
+  by (simp add: lem72)
 
 (* Exercice 8 *)
 
@@ -113,27 +111,29 @@ value "(intersection [(1::int), 2, 3] [1, 3, 3])"
 (* Exercice 9 *)
 
 (* si un élément est membre à la fois dans les 2 listes alors il est présent dans l'intersection des 2 *)
-lemma "((member a l) \<and> (member a m)) \<longrightarrow> (member a (intersection l m))"
+lemma lem9:  "((member a l) \<and> (member a m)) \<longrightarrow> (member a (intersection l m))"
   apply auto
   apply (induct l)
   apply auto
+  done
+
+lemma lem9prof: "(isSet l1) \<longrightarrow> (isSet l2) \<longrightarrow> (member x (intersection l1 l2)) =  ((member x l1) \<and> (member x l2))"
+    apply (induct l1)
+  apply auto
+     apply (induct l2)
+   apply auto
   done
 
 
 (* Exercice 10 *)
 
 (* vérifions que le résultat de 'intersection' satisfait le 'isSet' *)
-lemma "(isSet l) \<and> (isSet m) \<longrightarrow> ( isSet (intersection l m))"
-  apply auto
+lemma lem10:  "(isSet l) \<and> (isSet m) \<longrightarrow> ( isSet (intersection l m))"
   apply (induct l)
-   apply auto[1]
-   apply (induct m)
-    apply auto[1]
    apply auto
-    apply (induct l)
-     apply (induct l)
-      apply auto
-  sorry
+     apply (induct m)
+  apply auto
+  by (simp add: lem9prof)
 
 
 (* Exercice 11 *)
@@ -152,24 +152,42 @@ value "(union [] [(0::int),0])"
 (* Exercice 12 *)
 
 (* si un élément est présent dans un emsemble alors il est présent dans le résultat *)
-lemma "(member a l) \<longrightarrow> (member a (union b l))"
-  nitpick
-  apply auto
+lemma lem12: "(member a l) \<longrightarrow> (member a (union b l))"
   apply (induct l)
-  apply auto[1]
-  apply auto
-  apply (induct l)
-  apply auto
+    apply (induct b)
+    apply auto
   sorry
+
+
+lemma lem12prof: "(isSet l1) \<longrightarrow> (isSet l2) \<longrightarrow> ((member x (union l1 l2)) =  (member x l1) \<or> (member x l2))"
+  apply (induct l1)
+  apply (induct l2)
+    apply auto
+  apply (meson lem4)
+  apply (meson lem4)
+  apply (meson lem4)
+  apply (meson lem4)
+  by (meson lem4)
 
 
 (* Exercice 13 *)
 
-lemma " (isSet (union l  m))"
-  nitpick
+lemma lem13: " (isSet (union l  m))"
   apply (induct l)
    apply auto
-  sorry
+  apply (metis isSet.cases isSet.elims(3) lem5 union.simps(1) union.simps(2))
+    apply (simp add: lem5)
+  apply (meson lem4)
+  by (simp add: lem5)
+
+
+lemma lem13prof: "(isSet l1) \<longrightarrow> (isSet l2) \<longrightarrow> (isSet (union l1 l2))"
+  apply (induct l1)
+   apply (induct l2)
+  apply simp
+  using lem13 apply blast
+  using lem13 by blast
+
 
 (* Exercice 14 *)
 
@@ -184,7 +202,7 @@ fun equal::"'a list \<Rightarrow> 'a list \<Rightarrow> bool"
 (* Exercice 15 *)
 
 (* si l et m sont égaux et que a est dans l alors a est également dans m *)
-lemma "(equal l m) \<and> (member a l) \<longrightarrow> ( member a m)"
+lemma lem15: "(equal l m) \<and> (member a l) \<longrightarrow> ( member a m)"
   nitpick
   apply auto
   apply (induct l)
@@ -192,7 +210,8 @@ lemma "(equal l m) \<and> (member a l) \<longrightarrow> ( member a m)"
   sorry
 
 
-
+lemma lem1prof: "(isSet l1) \<longrightarrow> (isSet l2) \<longrightarrow> ((equal l1 l2) = ( \<forall>x. ((member x l1) = (member x l1))))"
+  sorry
 
 
 
