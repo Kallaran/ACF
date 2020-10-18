@@ -73,4 +73,14 @@ class TestSimplify {
 
     assertEquals(pres, simp.simplify(p))
   }
+
+  @Test
+  def t7(){
+    val simp= new MySimplifier
+
+    val p= List(Qmark, Qmark, Star)
+    val pres= List(Qmark, Plus)
+
+    assertEquals(pres, simp.simplify(p))
+  }
 }

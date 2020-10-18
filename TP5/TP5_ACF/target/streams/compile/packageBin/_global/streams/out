@@ -58,8 +58,10 @@
 [debug] 	  C:\Users\jeand\Documents\ACF\TP5\TP5_ACF\target\scala-2.13\classes\main\Application.class
 [debug] 	simplifier
 [debug] 	  C:\Users\jeand\Documents\ACF\TP5\TP5_ACF\target\scala-2.13\classes\simplifier
-[debug] 	simplifier\LE_NOM_DE_VOTRE_BINOME
-[debug] 	  C:\Users\jeand\Documents\ACF\TP5\TP5_ACF\target\scala-2.13\classes\simplifier\LE_NOM_DE_VOTRE_BINOME
-[debug] 	simplifier\LE_NOM_DE_VOTRE_BINOME\MySimplifier.class
-[debug] 	  C:\Users\jeand\Documents\ACF\TP5\TP5_ACF\target\scala-2.13\classes\simplifier\LE_NOM_DE_VOTRE_BINOME\MySimplifier.class
+[debug] 	simplifier\DEMONGEOT
+[debug] 	  C:\Users\jeand\Documents\ACF\TP5\TP5_ACF\target\scala-2.13\classes\simplifier\DEMONGEOT
+[debug] 	simplifier\DEMONGEOT\DERIEUX
+[debug] 	  C:\Users\jeand\Documents\ACF\TP5\TP5_ACF\target\scala-2.13\classes\simplifier\DEMONGEOT\DERIEUX
+[debug] 	simplifier\DEMONGEOT\DERIEUX\MySimplifier.class
+[debug] 	  C:\Users\jeand\Documents\ACF\TP5\TP5_ACF\target\scala-2.13\classes\simplifier\DEMONGEOT\DERIEUX\MySimplifier.class
 [debug] Done packaging.
