@@ -202,20 +202,58 @@ fun san1::"statement ⇒ bool"
 "san1 _ = True" 
 
 
+(* programme accepté si uniquement des exec sur des constantes non 0 *)
+fun san2::"statement ⇒ bool"
+  where
+"san2 (Exec (Constant n)) = (if (n = 0) then False else True)" |
+"san2 (Exec _) = False" |
+"san2 (If condition stat1 stat2) = (if (san2 stat1) then (san2 stat2) else False) " |  (* si stat1 est inoffensif on regarde stat2 sinon c'est que stat1 est mauvais donc on rend False *)
+"san2 (Seq stat1 stat2)  = (if (san2 stat1) then (san2 stat2) else False) " |
+"san2 _ = True" 
+
+(* programme accepté si (exec expression) avec expression non 0 *)
+fun san::"statement ⇒ bool"
+  where
+"san (Exec expr) = (if ((evalE expr st)  = 0) then False else True)" |
+"san (If condition stat1 stat2) = (if (san stat1) then (san stat2) else False) " |  (* si stat1 est inoffensif on regarde stat2 sinon c'est que stat1 est mauvais donc on rend False *)
+"san (Seq stat1 stat2)  = (if (san stat1) then (san stat2) else False) " |
+"san Skip = True" |
+"san (Print expression) = True" 
+
+
 (* memo
 
 datatype expression= Constant int | Variable string | Sum expression expression | Sub expression expression
 
 datatype condition= Eq expression expression
 
-datatype statement= Seq statement statement | 
+datatype statement=
                     Aff string expression | 
                     Read string | 
-                    Print expression | 
                     Exec expression | 
-                    If condition statement statement |
-                    Skip
 *)
+
+
+
+value "san2 (bad1)"
+value "san2 (bad2)"
+value "san2 (bad3)"
+value "san2 (bad4)"
+value "san2 (bad5)"
+value "san2 (bad6)"
+value "san2 (bad7)"
+value "san2 (bad8)"
+
+value "san2 (ok1)"
+value "san2 (ok2)"
+
+value "san2 p4"
+
+
+
+
+
+
 
 
 (* Si san accepte un programme alors son Ã©valuation, quelles que soient les entrÃ©es utilisateur (inchan)

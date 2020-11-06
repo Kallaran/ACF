@@ -22,14 +22,15 @@ definition "expr1= (Sub (Variable ''x'') (Constant 10))"
 
 (* Des exemples de programmes *)
 
-(* p1= exec(0) *)
+(* p1= exec(0) *) (*bad*)
 definition "p1= Exec (Constant 0)"
+
 
 (* p2= {
         print(10)
         exec(0+0)
        }
-*)
+*)(*bad*)
 
 definition "p2= (Seq (Print (Constant 10)) (Exec (Sum (Constant 0) (Constant 0))))"
 
@@ -37,7 +38,7 @@ definition "p2= (Seq (Print (Constant 10)) (Exec (Sum (Constant 0) (Constant 0))
          x:=0
          exec(x)
        }
-*)
+*)(*bad*)
 
 definition "p3= (Seq (Aff ''x'' (Constant 0)) (Exec (Variable ''x'')))"
 
@@ -45,7 +46,7 @@ definition "p3= (Seq (Aff ''x'' (Constant 0)) (Exec (Variable ''x'')))"
          read(x)
          print(x+1)
        }
-*)
+*)(*ok*)
 definition "p4= (Seq (Read ''x'') (Print (Sum (Variable ''x'') (Constant 1))))"
 
 
@@ -183,6 +184,39 @@ definition "ok14= (Seq (Read ''x'') (Seq (Read ''y'') (If (Eq (Sum (Variable ''x
 
 (* Le TP commence ici! *)
 (* TODO: BAD, san0, lemme de correction *)
+
+fun BAD::"(symTable * inchan * outchan) ⇒ bool"
+  where
+"BAD  (symT, inch, [])   = False " |
+"BAD (symT, inch, ((X n)#b)) = (if (n = 0) then True else BAD (symT, inch, b)) " |
+"BAD (symT, inch, ((P n)#b)) = BAD (symT, inch, b) " 
+
+value "BAD (evalS p4 ([],[],[]))"
+
+(* programme accepté si pas d'instructions exec *)
+fun san1::"statement ⇒ bool"
+  where
+"san1 (Exec _) = False" |
+"san1 (If condition stat1 stat2) = (if (san1 stat1) then (san1 stat2) else False) " |  (* si stat1 est inoffensif on regarde stat2 sinon c'est que stat1 est mauvais donc on rend False *)
+"san1 (Seq stat1 stat2)  = (if (san1 stat1) then (san1 stat2) else False) " |
+"san1 _ = True" 
+
+
+(* memo
+
+datatype expression= Constant int | Variable string | Sum expression expression | Sub expression expression
+
+datatype condition= Eq expression expression
+
+datatype statement= Seq statement statement | 
+                    Aff string expression | 
+                    Read string | 
+                    Print expression | 
+                    Exec expression | 
+                    If condition statement statement |
+                    Skip
+*)
+
 
 (* Si san accepte un programme alors son Ã©valuation, quelles que soient les entrÃ©es utilisateur (inchan)
    ne provoquera pas d'exec(0) *)
