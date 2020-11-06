@@ -46,7 +46,7 @@ fun simplify::"pattern \<Rightarrow> pattern"
 
 "simplify  ((Char a)#r) = ((Char a)#(simplify r))" |
 "simplify (Star #(Star#s)) = (simplify (Star#s))" |
-"simplify (Plus #(Plus#s)) = (Qmark#(simplify (Plus#s)))" |
+"simplify (Plus #(Plus#s)) = (Plus#(simplify (Plus#s)))" |
 "simplify (Qmark#(Qmark#s)) = (Qmark#(simplify (Qmark#s)))" |
 
 "simplify (Plus#(Star#s)) = (simplify (Plus#s))" |
@@ -115,20 +115,40 @@ export_code simplify in Scala
 
 (* Le pattern vide n'accepte que le mot vide *)
 lemma acceptVide: "(accept [] w) \<longrightarrow> w=[]"
-  oops
+  by (metis accept.simps(3) neq_Nil_conv)
+
   
 (* Le seul pattern n'acceptant que le mot vide est le pattern vide *)
 lemma acceptVide2: "(\<forall> w. w\<noteq>[] \<longrightarrow> \<not>(accept p w)) \<longrightarrow> p=[]"
+   apply (induct p)
+   apply simp
   oops
+
+
+
+
+
+
+
+
+
+
+
 
 (* Le seul pattern n'acceptant que le langage ? est ? *)
 lemma acceptQmark: "(\<forall> w. (accept [Qmark] w = (accept p w))) \<longrightarrow> p=[Qmark]"
-  oops
+  apply (induct p)
+  using accept.simps(1) accept.simps(6) apply blast
+  sorry
+
+
+
+
 
 (* Si le pattern commence par un caractère ou un point d'interrogation alors le mot accepté
    commence forcément par un caractère (il ne peut être vide) *)
 lemma charAndQmarkRemoval: "((x\<noteq>Star) \<and> (x\<noteq> Plus) \<and> (accept (x#r) m)) \<longrightarrow> (\<exists> x2 r2. m=x2#r2 \<and> (accept r r2))"
-  oops
+  sorry
   
 (* Si le pattern commence par une étoile, on peut soit l'oublier soit oublier le premier caractère du mot accepté *)
 lemma patternStartsWithStar: "((accept (Star#r) m)) \<longrightarrow> ((accept r m) \<or> (\<exists> x2 r2. m=x2#r2 \<and> (accept (Star#r) r2)))"
@@ -181,8 +201,15 @@ lemma plusPlus1:"((accept (Plus#(Plus#r)) w) = (accept (Qmark#(Plus#r)) w))"
   oops
   
 (* Le lemme de correction final *)
-lemma correction:""
-  oops
+lemma correction: "(accept (simplify p) w ) = (accept p w) "
+  apply auto
+   apply (induct p)
+    apply simp
+   apply (case_tac "w")
+    apply auto
+  sorry
+
+ 
 
   
 end

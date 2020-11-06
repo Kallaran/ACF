@@ -1,13 +1,13 @@
 package main
 
-import simplifierProven.DERIEUX_Jean_DEMONGEOT_Nicolas.MySimplifier
+import simplifierProven.DERIEUX_Jean_DEMONGEOT_Nicolas.Simplify
 
 import scala.io.StdIn.readLine
 //import isabelleAndScala.Converter
 import library._
 
 object Application extends App{
-  val sp1= new MySimplifier()
+  val sp1= new Simplify()
   while(true){
     print("Pattern: ")
     val p= readLine()
