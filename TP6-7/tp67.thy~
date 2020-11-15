@@ -202,7 +202,48 @@ fun san1::"statement ⇒ bool"
 "san1 _ = True" 
 
 
+(* programme accepté si uniquement des exec sur des constantes non 0 *)
+fun san2::"statement ⇒ bool"
+  where
+"san2 (Exec (Constant n)) = (if (n = 0) then False else True)" |
+"san2 (Exec _) = False" |
+"san2 (If condition stat1 stat2) = (if (san2 stat1) then (san2 stat2) else False) " | 
+"san2 (Seq stat1 stat2)  = (if (san2 stat1) then (san2 stat2) else False) " |
+"san2 _ = True" 
+
+
+(* programme accepté si (exec expression) avec expression non 0 *)
+fun san3::"statement ⇒ symTable ⇒ bool"
+  where
+"(san3 (Exec expr) st) = (if ((evalE expr st)  = 0) then False else True)" |
+"(san3 (If condition stat1 stat2) st) = (if (evalC condition st ) then (san3 stat1 st) else (san3 stat2 st)) " |  (* on doit évaluer la condition car il est possible que l'un des statements ne soit jamais atteint donc on se fiche si il fait un exec 0*)
+"(san3 (Seq stat1 stat2) st) = (if (san3 stat1 st) then (san3 stat2 st) else False) " |
+"(san3 (Print expression) st) = True" |
+
+"(san3 (Aff string expression) st) = (san3 Skip ((string,(evalE expression st))#st))" |
+"(san3 (Read string) st) = (san3 Skip ((string,0)#st))" |
+
+"(san3 Skip st) = True" 
+
+fun san::"statement ⇒ bool"
+  where
+"san p = (san3 p [])"
+
+
+
+
+value "assoc ''x'' st1"     (* quand la variable est dans la table st1 *)
+value "assoc ''z'' st1"     (* quand la variable n'est pas dans la table st1 *)
+
 (* memo
+
+
+
+
+type_synonym symTable= "(string * int) list"
+
+definition "(st24::symTable)= [(''x'',10),(''y'',12)]"      (* Un exemple de table de symbole *)
+
 
 datatype expression= Constant int | Variable string | Sum expression expression | Sub expression expression
 
@@ -211,11 +252,44 @@ datatype condition= Eq expression expression
 datatype statement= Seq statement statement | 
                     Aff string expression | 
                     Read string | 
-                    Print expression | 
                     Exec expression | 
-                    If condition statement statement |
-                    Skip
 *)
+
+
+
+value "san2 (bad1)"
+value "san2 (bad2)"
+value "san2 (bad3)"
+value "san2 (bad4)"
+value "san2 (bad5)"
+value "san2 (bad6)"
+value "san2 (bad7)"
+value "san2 (bad8)"
+
+value "san2 (ok1)"
+value "san2 (ok2)"
+
+value "san2 p4"
+
+
+
+
+
+
+
+
+value "BAD (evalS Skip ([],[],[X 0]))"
+
+
+lemma correctionsan1:  "(san1 p) \<longrightarrow> ( \<not>(BAD (evalS p ([] , inchan , [])  )))  "
+  nitpick[timeout=120]
+  quickcheck[tester=narrowing,size=5,timeout=120]
+  apply (induct p)
+  apply auto
+  sorry
+
+
+  
 
 
 (* Si san accepte un programme alors son Ã©valuation, quelles que soient les entrÃ©es utilisateur (inchan)

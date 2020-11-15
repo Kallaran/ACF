@@ -207,27 +207,102 @@ fun san2::"statement ⇒ bool"
   where
 "san2 (Exec (Constant n)) = (if (n = 0) then False else True)" |
 "san2 (Exec _) = False" |
-"san2 (If condition stat1 stat2) = (if (san2 stat1) then (san2 stat2) else False) " |  (* si stat1 est inoffensif on regarde stat2 sinon c'est que stat1 est mauvais donc on rend False *)
+"san2 (If condition stat1 stat2) = (if (san2 stat1) then (san2 stat2) else False) " | 
 "san2 (Seq stat1 stat2)  = (if (san2 stat1) then (san2 stat2) else False) " |
 "san2 _ = True" 
 
+
+datatype typeAbs = Define int | Undefine
+type_synonym symTableAbs= "(string * typeAbs) list"
+
+(* addition pour typeAbs *)
+fun addAbs:: "typeAbs ⇒ typeAbs ⇒ typeAbs"
+  where
+"(addAbs  Undefine _ ) = Undefine "|
+"(addAbs  _ Undefine ) = Undefine "|
+"(addAbs  (Define x) (Define y)) = (Define (x + y)) "
+
+(* soustraction pour typeAbs *)
+fun subAbs:: "typeAbs ⇒ typeAbs ⇒ typeAbs"
+  where
+"(subAbs  Undefine _ ) = Undefine "|
+"(subAbs  _ Undefine ) = Undefine "|
+"(subAbs  (Define x) (Define y)) = (Define (x - y)) "
+
+(* La fonction (partielle) de recherche dans une table de symbole *)
+fun assocAbs:: "string  ⇒ (string * typeAbs) list  ⇒ typeAbs"
+where
+"assocAbs _ [] = Undefine" |
+"assocAbs x1 ((x,y)#xs)= (if (x=x1)  then y  else (assocAbs x1 xs))" 
+
+
+
+(* Evaluation des expressions par rapport a une table de symboles Abs *)
+fun evalEAbs:: "expression  ⇒ symTableAbs  ⇒ typeAbs"
+where
+"evalEAbs (Constant s) e = (Define s)" |
+"evalEAbs (Variable s) e= (assocAbs s e)" |
+"evalEAbs (Sum e1 e2) e= (addAbs (evalEAbs e1 e) (evalEAbs e2 e))" |
+"evalEAbs (Sub e1 e2) e= (subAbs (evalEAbs e1 e) (evalEAbs e2 e))" 
+
+(* fonction = pour typeAbs *)
+fun eqAbs::"typeAbs   ⇒ typeAbs  ⇒ bool"
+where
+"(eqAbs Undefine Undefine) = True" |
+"(eqAbs (Define x) (Define y)) = (x=y)" |
+"(eqAbs _ _ ) = False"
+
 (* programme accepté si (exec expression) avec expression non 0 *)
+fun san4::"statement ⇒ symTableAbs ⇒ bool"
+  where
+"(san4 (Exec expr) st) = (if (eqAbs (evalEAbs expr st)  Undefine) then False else  \<not>(eqAbs (evalEAbs expr st)  (Define 0)) )" |  (* le programme est accepté uniquement si l'évaluation de l'expression ne rend ni Undefine ni Define 0 *) 
+"(san4 (If condition stat1 stat2) st) = (if (evalC condition st ) then (san4 stat1 st) else (san4 stat2 st)) " |  (* on doit évaluer la condition car il est possible que l'un des statements ne soit jamais atteint donc on se fiche si il fait un exec 0*)
+"(san4 (Seq stat1 stat2) st) = (if (san3 stat1 st) then (san3 stat2 st) else False) " |
+"(san4 (Print expression) st) = True" |
+
+"(san4 (Aff string expression) st) = (san3 Skip ((string,(evalEAbs expression st))#st))" |
+"(san4 (Read string) st) = (san4 Skip ((string, Undefine)#st))" |
+
+"(san4 Skip st) = True" 
+
+(* programme accepté si (exec expression) avec expression non 0 *)
+fun san3::"statement ⇒ symTable ⇒ bool"
+  where
+"(san3 (Exec expr) st) = (if ((evalE expr st)  = 0) then False else True)" |
+"(san3 (If condition stat1 stat2) st) = (if (evalC condition st ) then (san3 stat1 st) else (san3 stat2 st)) " |  (* on doit évaluer la condition car il est possible que l'un des statements ne soit jamais atteint donc on se fiche si il fait un exec 0*)
+"(san3 (Seq stat1 stat2) st) = (if (san3 stat1 st) then (san3 stat2 st) else False) " |
+"(san3 (Print expression) st) = True" |
+
+"(san3 (Aff string expression) st) = (san3 Skip ((string,(evalE expression st))#st))" |
+"(san3 (Read string) st) = (san3 Skip ((string,0)#st))" |
+
+"(san3 Skip st) = True" 
+
 fun san::"statement ⇒ bool"
   where
-"san (Exec expr) = (if ((evalE expr st)  = 0) then False else True)" |
-"san (If condition stat1 stat2) = (if (san stat1) then (san stat2) else False) " |  (* si stat1 est inoffensif on regarde stat2 sinon c'est que stat1 est mauvais donc on rend False *)
-"san (Seq stat1 stat2)  = (if (san stat1) then (san stat2) else False) " |
-"san Skip = True" |
-"san (Print expression) = True" 
+"san p = (san3 p [])"
 
+
+
+
+value "assoc ''x'' st1"     (* quand la variable est dans la table st1 *)
+value "assoc ''z'' st1"     (* quand la variable n'est pas dans la table st1 *)
 
 (* memo
+
+
+
+
+type_synonym symTable= "(string * int) list"
+
+definition "(st24::symTable)= [(''x'',10),(''y'',12)]"      (* Un exemple de table de symbole *)
+
 
 datatype expression= Constant int | Variable string | Sum expression expression | Sub expression expression
 
 datatype condition= Eq expression expression
 
-datatype statement=
+datatype statement= Seq statement statement | 
                     Aff string expression | 
                     Read string | 
                     Exec expression | 
@@ -254,6 +329,20 @@ value "san2 p4"
 
 
 
+
+
+value "BAD (evalS Skip ([],[],[X 0]))"
+
+
+lemma correctionsan1:  "(san1 p) \<longrightarrow> ( \<not>(BAD (evalS p ([] , inchan , [])  )))  "
+  nitpick[timeout=120]
+  quickcheck[tester=narrowing,size=5,timeout=120]
+  apply (induct p)
+  apply auto
+  sorry
+
+
+  
 
 
 (* Si san accepte un programme alors son Ã©valuation, quelles que soient les entrÃ©es utilisateur (inchan)
