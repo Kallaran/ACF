@@ -257,18 +257,25 @@ fun evalCAbs:: "condition \<Rightarrow> symTableAbs \<Rightarrow> bool"
 where
 "evalCAbs (Eq e1 e2) t= (eqAbs (evalEAbs e1 t) (evalEAbs e2 t))"
 
+
+(* parcours d'une table de symbole Abs, rajoute le couple string * typeAbs ou actualise le couple avec le nouveau typeAbs si le string est déjà présent *)
+fun affAbs:: "(string * typeAbs)  ⇒ (string * typeAbs) list  ⇒  (string * typeAbs) list  "
+where
+"affAbs a [] = [a]  " |
+"affAbs (x1, y1) ((x,y)#xs) = (if (x=x1)  then ((x1,y1)#xs)  else ((x,y)#(affAbs (x1,y1) xs )))" 
+
 (* programme accepté si (exec expression) avec expression non 0 *)
 fun san4::"statement ⇒ symTableAbs ⇒ bool"
   where
+"(san4 Skip  st) = True" |
 "(san4 (Exec expr) st) = (if (eqAbs (evalEAbs expr st)  Undefine) then False else  \<not>(eqAbs (evalEAbs expr st)  (Define 0)) )" |  (* le programme est accepté uniquement si l'évaluation de l'expression ne rend ni Undefine ni Define 0 *) 
 "(san4 (If condition stat1 stat2) st) = (if (evalCAbs condition st ) then (san4 stat1 st) else (san4 stat2 st)) " |  (* on doit évaluer la condition car il est possible que l'un des statements ne soit jamais atteint donc on se fiche si il fait un exec 0*)
 "(san4 (Seq stat1 stat2) st) = (if (san4 stat1 st) then (san4 stat2 st) else False) " |
 "(san4 (Print expression) st) = True" |
 
-"(san4 (Aff string expression) st) = (san4 Skip ((string,(evalEAbs expression st))#st))" |
-"(san4 (Read string) st) = (san4 Skip ((string, Undefine)#st))" |
+"(san4 (Aff string expression) st) = (san4 Skip (affAbs (string, (evalEAbs expression st)) st))   " |  (* a la table de symbole on rajoute la nouvelle valeur pour string *)
+"(san4 (Read string) st) = (san4 Skip ((string, Undefine)#st))" 
 
-"(san4 Skip  st) = True" 
 
 (* programme accepté si (exec expression) avec expression non 0 *)
 fun san3::"statement ⇒ symTable ⇒ bool"
