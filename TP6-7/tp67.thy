@@ -245,7 +245,7 @@ where
 "evalEAbs (Sum e1 e2) e= (addAbs (evalEAbs e1 e) (evalEAbs e2 e))" |
 "evalEAbs (Sub e1 e2) e= (subAbs (evalEAbs e1 e) (evalEAbs e2 e))" 
 
-(* fonction = pour typeAbs *)
+(* fonction pour typeAbs, permet de comparer 2 typesAbs *)
 fun eqAbs::"typeAbs   ⇒ typeAbs  ⇒ bool"
 where
 "(eqAbs Undefine Undefine) = True" |
@@ -255,7 +255,7 @@ where
 (* Evaluation des conditions par rapport a une table de symboles Abs *)
 fun evalCAbs:: "condition \<Rightarrow> symTableAbs \<Rightarrow> bool"
 where
-"evalCAbs (Eq e1 e2) t= (eqAbs (evalEAbs e1 t) (evalEAbs e2 t))"
+"evalCAbs (Eq e1 e2) t= (eqAbs (evalEAbs e1 t) (evalEAbs e2 t))"       (*REMPLACER eqAbs *)
 
 
 (* parcours d'une table de symbole Abs, rajoute le couple string * typeAbs ou actualise le couple avec le nouveau typeAbs si le string est déjà présent *)
@@ -264,6 +264,24 @@ where
 "affAbs a [] = [a]  " |
 "affAbs (x1, y1) ((x,y)#xs) = (if (x=x1)  then ((x1,y1)#xs)  else ((x,y)#(affAbs (x1,y1) xs )))" 
 
+
+(* permet d'obtenir le bool d'un couple (bool * symTableAbs) *)
+fun bCouple:: "(bool * symTableAbs)  ⇒ bool"
+  where
+"bCouple (b, st) = b"
+
+(* à partir d'un programme, permet de remplacer le bool en entrée par défaut à vrai à faux si un exec 0 arrive *)
+fun san5::"statement ⇒ ( bool * symTableAbs) ⇒ ( bool * symTableAbs)  "
+  where
+"(san5 Skip (b, st )) = (b, st) " |
+"(san5 (Exec expr)(b, st)) = (if ( (eqAbs (evalEAbs expr st)  Undefine) \<or>  (eqAbs (evalEAbs expr st)(Define 0)))  then (False, st)  else (b,st))" |  (* le programme est accepté uniquement si l'évaluation de l'expression ne rend ni Undefine ni Define 0 *) 
+"(san5 (If condition stat1 stat2) (b, st))  = (if (evalCAbs condition st ) then (san5 stat1 (b,st)) else (san5 stat2 (b, st))) " |  (* si stat1 est inoffensif on regarde stat2 sinon c'est que stat1 est mauvais donc on rend False *)
+"(san5 (Seq stat1 stat2) (b, st)) = (if (bCouple (san5 stat1 (b, st))) then (san5 stat2 (san5 stat1 (b, st))) else (False, st)) " |
+"(san5 (Print expression) (b, st)) = (b, st)" |
+
+"(san5 (Aff string expression) (b, st)) = (b, (affAbs (string, (evalEAbs expression st)) st))   " |  (* a la table de symbole on rajoute la nouvelle valeur pour string *)
+
+"(san5 (Read string) (b, st)) = (b, (affAbs (string, Undefine) st))"
 
 (* programme accepté si (exec expression) avec expression non 0 *)
 fun san4::"statement ⇒ symTableAbs ⇒ bool"
@@ -294,7 +312,7 @@ fun san3::"statement ⇒ symTable ⇒ bool"
 
 fun san::"statement ⇒ bool"
   where
-"san p = (san3 p [])"
+"san p = (bCouple (san5 p (True, [])))"
 
 
 
@@ -324,19 +342,19 @@ datatype statement= Seq statement statement |
 
 
 
-value "san2 (bad1)"
-value "san2 (bad2)"
-value "san2 (bad3)"
-value "san2 (bad4)"
-value "san2 (bad5)"
-value "san2 (bad6)"
-value "san2 (bad7)"
-value "san2 (bad8)"
+value "san (bad1)"
+value "san (bad2)"
+value "san (bad3)"
+value "san (bad4)"
+value "san (bad5)"
+value "san (bad6)"
+value "san (bad7)"
+value "san (bad8)"
 
-value "san2 (ok1)"
-value "san2 (ok2)"
+value "san (ok1)"
+value "san (ok2)"
 
-value "san2 p4"
+value "san p4"
 
 
 
