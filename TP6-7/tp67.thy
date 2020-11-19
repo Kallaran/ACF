@@ -264,6 +264,7 @@ where
 "affAbs a [] = [a]  " |
 "affAbs (x1, y1) ((x,y)#xs) = (if (x=x1)  then ((x1,y1)#xs)  else ((x,y)#(affAbs (x1,y1) xs )))" 
 
+
 (* programme accepté si (exec expression) avec expression non 0 *)
 fun san4::"statement ⇒ symTableAbs ⇒ bool"
   where
@@ -274,7 +275,8 @@ fun san4::"statement ⇒ symTableAbs ⇒ bool"
 "(san4 (Print expression) st) = True" |
 
 "(san4 (Aff string expression) st) = (san4 Skip (affAbs (string, (evalEAbs expression st)) st))   " |  (* a la table de symbole on rajoute la nouvelle valeur pour string *)
-"(san4 (Read string) st) = (san4 Skip ((string, Undefine)#st))" 
+
+"(san4 (Read string) st) = (san4 Skip (affAbs (string, Undefine) st))"
 
 
 (* programme accepté si (exec expression) avec expression non 0 *)
