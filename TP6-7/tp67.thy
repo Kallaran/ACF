@@ -245,17 +245,24 @@ where
 "evalEAbs (Sum e1 e2) e= (addAbs (evalEAbs e1 e) (evalEAbs e2 e))" |
 "evalEAbs (Sub e1 e2) e= (subAbs (evalEAbs e1 e) (evalEAbs e2 e))" 
 
-(* fonction pour typeAbs, permet de comparer 2 typesAbs *)
+(*  permet de comparer 2 typesAbs, si ils sont identiques rend True *)
 fun eqAbs::"typeAbs   ⇒ typeAbs  ⇒ bool"
 where
 "(eqAbs Undefine Undefine) = True" |
 "(eqAbs (Define x) (Define y)) = (x=y)" |
 "(eqAbs _ _ ) = False"
 
+(* fonction qui permet de comparer 2 typesAbs et rend Define 1 si ils sont Define et égaux aux int  *)
+(* (Define 0) correspond  à false et (Define 1) à true *)
+fun evalCAbsAux::" typeAbs ⇒ typeAbs  ⇒ typeAbs"
+  where
+"(evalCAbsAux (Define x) (Define y) ) = (if (x=y) then (Define 1) else (Define 0))" |
+"(evalCAbsAux _ _) = Undefine"
+
 (* Evaluation des conditions par rapport a une table de symboles Abs *)
-fun evalCAbs:: "condition \<Rightarrow> symTableAbs \<Rightarrow> bool"
+fun evalCAbs:: "condition ⇒ symTableAbs ⇒ typeAbs"   
 where
-"evalCAbs (Eq e1 e2) t= (eqAbs (evalEAbs e1 t) (evalEAbs e2 t))"       (*REMPLACER eqAbs *)
+"evalCAbs (Eq e1 e2) t=  (evalCAbsAux (evalEAbs e1 t) (evalEAbs e2 t)) "      
 
 
 (* parcours d'une table de symbole Abs, rajoute le couple string * typeAbs ou actualise le couple avec le nouveau typeAbs si le string est déjà présent *)
@@ -275,7 +282,9 @@ fun san5::"statement ⇒ ( bool * symTableAbs) ⇒ ( bool * symTableAbs)  "
   where
 "(san5 Skip (b, st )) = (b, st) " |
 "(san5 (Exec expr)(b, st)) = (if ( (eqAbs (evalEAbs expr st)  Undefine) \<or>  (eqAbs (evalEAbs expr st)(Define 0)))  then (False, st)  else (b,st))" |  (* le programme est accepté uniquement si l'évaluation de l'expression ne rend ni Undefine ni Define 0 *) 
-"(san5 (If condition stat1 stat2) (b, st))  = (if (evalCAbs condition st ) then (san5 stat1 (b,st)) else (san5 stat2 (b, st))) " |  (* si stat1 est inoffensif on regarde stat2 sinon c'est que stat1 est mauvais donc on rend False *)
+"(san5 (If condition stat1 stat2) (b, st))  = (if (eqAbs  (evalCAbs condition st ) Undefine) 
+                                               then (False, st) 
+                                                else (if (eqAbs (evalCAbs condition st) (Define 1)) then ( san5 stat1 (b, st)) else (san5 stat2 (b, st)))) " |  (* On a 3 cas soit evalCAbs rend Undefine soit Define 0 soit Define 1 *)  (*cas Undefine on doit regarder stat1 et stat2 *)
 "(san5 (Seq stat1 stat2) (b, st)) = (if (bCouple (san5 stat1 (b, st))) then (san5 stat2 (san5 stat1 (b, st))) else (False, st)) " |
 "(san5 (Print expression) (b, st)) = (b, st)" |
 

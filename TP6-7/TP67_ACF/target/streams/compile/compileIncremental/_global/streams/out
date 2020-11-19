@@ -1,0 +1,51 @@
+[debug] Full compilation, no sources in previous analysis.
+[debug] All sources are invalidated.
+[debug] Initial set of included nodes: 
+[debug] Recompiling all sources: number of invalidated sources > 50.0% of all sources
+[info] Compiling 6 Scala sources to C:\Users\jeand\Documents\ACF\TP6-7\TP67_ACF\target\scala-2.13\classes ...
+[debug] Getting org.scala-sbt:compiler-bridge_2.13:1.3.4:compile for Scala 2.13.3
+[info] Non-compiled module 'compiler-bridge_2.13' for Scala 2.13.3. Compiling...
+[debug] Creating plain compiler interface for 2.13.3.
+[debug]   > Arguments: 
+[debug] 	-nowarn
+[debug] 	-d
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_73eb3e85
+[debug] 	-bootclasspath
+[debug] 	C:\Users\jeand\AppData\Local\Coursier\cache\v1\https\repo1.maven.org\maven2\org\scala-lang\scala-library\2.13.3\scala-library-2.13.3.jar
+[debug] 	-classpath
+[debug] 	C:\Users\jeand\AppData\Local\Coursier\cache\v1\https\repo1.maven.org\maven2\org\scala-sbt\compiler-interface\1.3.4\compiler-interface-1.3.4.jar;C:\Users\jeand\AppData\Local\Coursier\cache\v1\https\repo1.maven.org\maven2\com\google\protobuf\protobuf-java\3.7.0\protobuf-java-3.7.0.jar;C:\Users\jeand\AppData\Local\Coursier\cache\v1\https\repo1.maven.org\maven2\org\scala-sbt\util-interface\1.3.0\util-interface-1.3.0.jar;C:\Users\jeand\AppData\Local\Coursier\cache\v1\https\repo1.maven.org\maven2\org\scala-sbt\compiler-bridge_2.13\1.3.4\compiler-bridge_2.13-1.3.4-sources.jar;C:\Users\jeand\AppData\Local\Coursier\cache\v1\https\repo1.maven.org\maven2\org\scala-lang\scala-compiler\2.13.3\scala-compiler-2.13.3.jar;C:\Users\jeand\AppData\Local\Coursier\cache\v1\https\repo1.maven.org\maven2\org\jline\jline\3.15.0\jline-3.15.0.jar;C:\Users\jeand\AppData\Local\Coursier\cache\v1\https\repo1.maven.org\maven2\net\java\dev\jna\jna\5.3.1\jna-5.3.1.jar;C:\Users\jeand\AppData\Local\Coursier\cache\v1\https\repo1.maven.org\maven2\org\scala-lang\scala-reflect\2.13.3\scala-reflect-2.13.3.jar
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\API.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\Analyzer.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\CallbackGlobal.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\ClassName.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\Command.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\Compat.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\CompilerInterface.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\ConsoleInterface.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\DelegatingReporter.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\Dependency.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\ExtractAPI.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\ExtractUsedNames.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\GlobalHelpers.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\InteractiveConsoleFactory.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\InteractiveConsoleHelper.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\InteractiveConsoleInterface.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\InteractiveConsoleResponse.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\JarUtils.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\JavaUtils.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\LocalToNonLocalClass.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\LocateClassFile.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\Log.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\Message.scala
+[debug] 	C:\Users\jeand\AppData\Local\Temp\sbt_ebbd6832\xsbt\ScaladocInterface.scala
+[debug]       
+[info]   Compilation completed in 14.542s.
+[debug] Getting org.scala-sbt:compiler-bridge_2.13:1.3.4:compile for Scala 2.13.3
+[debug] [zinc] Running cached compiler 2c951aea for Scala compiler version 2.13.3
+[debug] [zinc] The Scala compiler is invoked with:
+[debug] 	-bootclasspath
+[debug] 	C:\Users\jeand\AppData\Local\Coursier\cache\v1\https\repo1.maven.org\maven2\org\scala-lang\scala-library\2.13.3\scala-library-2.13.3.jar
+[debug] 	-classpath
+[debug] 	C:\Users\jeand\Documents\ACF\TP6-7\TP67_ACF\target\scala-2.13\classes;C:\Users\jeand\Documents\ACF\TP6-7\TP67_ACF\libJars\tp67.jar;C:\Users\jeand\AppData\Local\Coursier\cache\v1\https\repo1.maven.org\maven2\org\scala-lang\modules\scala-parser-combinators_2.13\1.1.2\scala-parser-combinators_2.13-1.1.2.jar
+[debug] Scala compilation took 20.6627898 s
+[info] Done compiling.
