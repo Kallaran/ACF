@@ -232,7 +232,7 @@ fun subAbs:: "typeAbs ⇒ typeAbs ⇒ typeAbs"
 (* La fonction (partielle) de recherche dans une table de symbole Abs *)
 fun assocAbs:: "string  ⇒ (string * typeAbs) list  ⇒ typeAbs"
 where
-"assocAbs _ [] = Undefine" |
+"assocAbs _ [] = (Define (-1))" |
 "assocAbs x1 ((x,y)#xs)= (if (x=x1)  then y  else (assocAbs x1 xs))" 
 
 
@@ -280,7 +280,11 @@ fun bCouple:: "(bool * symTableAbs)  ⇒ bool"
 
 fun presentStAbs:: "(string * typeAbs)   ⇒ symTableAbs   ⇒ bool"
   where
-"(presentStAbs (x,y) st) = True"
+"(presentStAbs (x1, y1) []) = False" | 
+"(presentStAbs (x1, Undefine) _ ) = False" |
+"(presentStAbs (x1, y1) ((x2, y2)#st)) = (if ((x1=x2) \<and> (eqAbs y1 y2) ) 
+                                          then True
+                                          else (presentStAbs (x1, y1) st) )" 
 
 (* parcours une list symTableAbs équivalente à (string * typeAbs) list  et si un élément se trouve dans la seconde list et est Define et identique alors on le rajoute à la symTableAbs résultat *)
 fun STunionAux::" symTableAbs   ⇒ symTableAbs   ⇒ symTableAbs  ⇒ symTableAbs "
@@ -534,7 +538,7 @@ import AutomaticConversion._
 
 (* Directive pour l'exportation de l'analyseur *)
 
-export_code san in Scala (case_insensitive)
+export_code safe in Scala (case_insensitive)
 
 (* file "~/workspace/TP67/src/tp67/san.scala"   (* Ã  adapter en fonction du chemin de votre projet TP67 *)
 *)

@@ -144,6 +144,9 @@ object Int {
     int_of_integer(Code_Numeral.integer_of_int(k) -
       Code_Numeral.integer_of_int(l))
 
+  def uminus_int(k: int): int =
+    int_of_integer((- (Code_Numeral.integer_of_int(k))))
+
 } /* object Int */
 
 object Product_Type {
@@ -208,7 +211,7 @@ object Analyzer {
   typeabs
   =
     (uu, x1) match {
-      case (uu, Nil) => Undefine()
+      case (uu, Nil) => Define(Int.uminus_int(Int.one_int))
       case (x1, (x, y) :: xs) =>
         (if (Lista.equal_list[String.char](x, x1)) y else assocabs(x1, xs))
     }
@@ -245,6 +248,48 @@ object Analyzer {
       case (Eq(e1, e2), t) => evalcabsaux(evaleabs(e1, t), evaleabs(e2, t))
     }
 
+  def eqabs(x0: typeabs, x1: typeabs): Boolean = (x0, x1) match {
+    case (Undefine(), Undefine()) => true
+    case (Define(x), Define(y)) => Int.equal_int(x, y)
+    case (Define(v), Undefine()) => false
+    case (Undefine(), Define(v)) => false
+  }
+
+  def presentstabs(x0: (List[String.char], typeabs),
+                   x1: List[(List[String.char], typeabs)]):
+  Boolean
+  =
+    (x0, x1) match {
+      case ((x1, y1), Nil) => false
+      case ((x1, Undefine()), v :: va) => true
+      case ((x1, Define(v)), (x2, y2) :: st) =>
+        (if (Lista.equal_list[String.char](x1, x2) && eqabs(Define(v), y2)) true
+        else presentstabs((x1, Define(v)), st))
+    }
+
+  def Stunionaux(x0: List[(List[String.char], typeabs)],
+                 st: List[(List[String.char], typeabs)],
+                 stresul: List[(List[String.char], typeabs)]):
+  List[(List[String.char], typeabs)]
+  =
+    (x0, st, stresul) match {
+      case (Nil, st, stresul) => stresul
+      case ((x, y) :: rest, st, stresul) =>
+        (if (presentstabs((x, y), st)) Stunionaux(rest, st, (x, y) :: stresul)
+        else Stunionaux(rest, st, (x, Undefine()) :: stresul))
+    }
+
+  def Stunion(x0: (Boolean, List[(List[String.char], typeabs)]),
+              x1: (Boolean, List[(List[String.char], typeabs)])):
+  (Boolean, List[(List[String.char], typeabs)])
+  =
+    (x0, x1) match {
+      case ((b1, stAbs1), (b2, stAbs2)) =>
+        (if (b1 && b2)
+          (b1, Stunionaux(stAbs2, stAbs1, Stunionaux(stAbs1, stAbs2, Nil)))
+        else (false, Stunionaux(stAbs2, stAbs1, Stunionaux(stAbs1, stAbs2, Nil))))
+    }
+
   def affabs(a: (List[String.char], typeabs),
              x1: List[(List[String.char], typeabs)]):
   List[(List[String.char], typeabs)]
@@ -256,13 +301,6 @@ object Analyzer {
         else (x, y) :: affabs((x1, y1), xs))
     }
 
-  def eqabs(x0: typeabs, x1: typeabs): Boolean = (x0, x1) match {
-    case (Undefine(), Undefine()) => true
-    case (Define(x), Define(y)) => Int.equal_int(x, y)
-    case (Define(v), Undefine()) => false
-    case (Undefine(), Define(v)) => false
-  }
-
   def san5(x0: statement, x1: (Boolean, List[(List[String.char], typeabs)])):
   (Boolean, List[(List[String.char], typeabs)])
   =
@@ -273,7 +311,9 @@ object Analyzer {
           eqabs(evaleabs(expr, st), Define(Int.zero_int)))
           (false, st) else (b, st))
       case (If(conditiona, stat1, stat2), (b, st)) =>
-        (if (eqabs(evalcabs(conditiona, st), Undefine())) (false, st)
+        (if (eqabs(evalcabs(conditiona, st), Undefine()))
+          (if (bcouple(san5(stat1, (b, st))) && bcouple(san5(stat2, (b, st))))
+            Stunion(san5(stat1, (b, st)), san5(stat2, (b, st))) else (false, st))
         else (if (eqabs(evalcabs(conditiona, st), Define(Int.one_int)))
           san5(stat1, (b, st)) else san5(stat2, (b, st))))
       case (Seq(stat1, stat2), (b, st)) =>
