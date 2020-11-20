@@ -280,7 +280,11 @@ fun bCouple:: "(bool * symTableAbs)  ⇒ bool"
 
 fun presentStAbs:: "(string * typeAbs)   ⇒ symTableAbs   ⇒ bool"
   where
-"(presentStAbs (x,y) st) = True"
+"(presentStAbs (x1, y1) []) = False" | 
+"(presentStAbs (x1, Undefine) _ ) = False" |
+"(presentStAbs (x1, y1) ((x2, y2)#st)) = (if ((x1=x2) \<and> (eqAbs y1 y2) ) 
+                                          then True
+                                          else (presentStAbs (x1, y1) st) )" 
 
 (* parcours une list symTableAbs équivalente à (string * typeAbs) list  et si un élément se trouve dans la seconde list et est Define et identique alors on le rajoute à la symTableAbs résultat *)
 fun STunionAux::" symTableAbs   ⇒ symTableAbs   ⇒ symTableAbs  ⇒ symTableAbs "
