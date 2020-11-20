@@ -277,15 +277,34 @@ fun bCouple:: "(bool * symTableAbs)  ⇒ bool"
   where
 "bCouple (b, st) = b"
 
+
+fun presentStAbs:: "(string * typeAbs)   ⇒ symTableAbs   ⇒ bool"
+  where
+"(presentStAbs (x,y) st) = True"
+
+(* parcours une list symTableAbs équivalente à (string * typeAbs) list  et si un élément se trouve dans la seconde list et est Define et identique alors on le rajoute à la symTableAbs résultat *)
+fun STunionAux::" symTableAbs   ⇒ symTableAbs   ⇒ symTableAbs  ⇒ symTableAbs "
+  where
+"(STunionAux [] st stresul) = stresul" |
+"(STunionAux  ((x,y)#rest) st stresul) =  (if (presentStAbs (x,y) st) then (STunionAux rest st ((x,y)#stresul)) else  (STunionAux rest st stresul)) "
+
+(* rend un couple (bool * symTablesAbs) qui est l'union des pires cas de deux couples (bool * symTablesAbs) *)
+fun STunion::" (bool * symTableAbs)   ⇒ (bool * symTableAbs)   ⇒ (bool * symTableAbs)"
+  where
+"(STunion (b1, stAbs1) (b2, stAbs2)) = (if (b1 \<and> b2) then (b1, (STunionAux stAbs1 stAbs2 [])) else  (False, (STunionAux stAbs1 stAbs2 [])))  "
+
+
 (* à partir d'un programme, permet de remplacer le bool en entrée par défaut à vrai à faux si un exec 0 arrive *)
 fun san5::"statement ⇒ ( bool * symTableAbs) ⇒ ( bool * symTableAbs)  "
   where
 "(san5 Skip (b, st )) = (b, st) " |
 "(san5 (Exec expr)(b, st)) = (if ( (eqAbs (evalEAbs expr st)  Undefine) \<or>  (eqAbs (evalEAbs expr st)(Define 0)))  then (False, st)  else (b,st))" |  (* le programme est accepté uniquement si l'évaluation de l'expression ne rend ni Undefine ni Define 0 *) 
 "(san5 (If condition stat1 stat2) (b, st))  = (if (eqAbs  (evalCAbs condition st ) Undefine) 
-                                               then (False, st) 
+                                               then (if ((bCouple (san5 stat1 (b, st))) \<and> (bCouple (san5 stat2 (b, st)))) then (STunion (san5 stat1 (b, st)) (san5 stat2 (b, st))  ) else (False, st)) 
                                                 else (if (eqAbs (evalCAbs condition st) (Define 1)) then ( san5 stat1 (b, st)) else (san5 stat2 (b, st)))) " |  (* On a 3 cas soit evalCAbs rend Undefine soit Define 0 soit Define 1 *)  (*cas Undefine on doit regarder stat1 et stat2 *)
+
 "(san5 (Seq stat1 stat2) (b, st)) = (if (bCouple (san5 stat1 (b, st))) then (san5 stat2 (san5 stat1 (b, st))) else (False, st)) " |
+
 "(san5 (Print expression) (b, st)) = (b, st)" |
 
 "(san5 (Aff string expression) (b, st)) = (b, (affAbs (string, (evalEAbs expression st)) st))   " |  (* a la table de symbole on rajoute la nouvelle valeur pour string *)
@@ -319,9 +338,11 @@ fun san3::"statement ⇒ symTable ⇒ bool"
 
 "(san3 Skip st) = True" 
 
-fun san::"statement ⇒ bool"
+
+
+fun safe::"statement ⇒ bool"
   where
-"san p = (bCouple (san5 p (True, [])))"
+"safe p = (bCouple (san5 p (True, [])))"
 
 
 
@@ -351,19 +372,19 @@ datatype statement= Seq statement statement |
 
 
 
-value "san (bad1)"
-value "san (bad2)"
-value "san (bad3)"
-value "san (bad4)"
-value "san (bad5)"
-value "san (bad6)"
-value "san (bad7)"
-value "san (bad8)"
+value "safe (bad1)"
+value "safe (bad2)"
+value "safe (bad3)"
+value "safe (bad4)"
+value "safe (bad5)"
+value "safe (bad6)"
+value "safe (bad7)"
+value "safe (bad8)"
 
-value "san (ok1)"
-value "san (ok2)"
+value "safe (ok1)"
+value "safe (ok2)"
 
-value "san p4"
+value "safe p4"
 
 
 

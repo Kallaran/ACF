@@ -107,6 +107,15 @@ object HOL {
 
 } /* object HOL */
 
+object Num {
+
+  abstract sealed class num
+  final case class One() extends num
+  final case class Bit0(a: num) extends num
+  final case class Bit1(a: num) extends num
+
+} /* object Num */
+
 object Code_Numeral {
 
   def integer_of_int(x0: Int.int): BigInt = x0 match {
@@ -119,6 +128,8 @@ object Int {
 
   abstract sealed class int
   final case class int_of_integer(a: BigInt) extends int
+
+  def one_int: int = int_of_integer(BigInt(1))
 
   def plus_int(k: int, l: int): int =
     int_of_integer(Code_Numeral.integer_of_int(k) +
@@ -184,7 +195,6 @@ object Lista {
 
 object Analyzer {
 
-
   abstract sealed class typeabs
   final case class Define(a: Int.int) extends typeabs
   final case class Undefine() extends typeabs
@@ -223,16 +233,16 @@ object Analyzer {
       case (Sub(e1, e2), e) => subabs(evaleabs(e1, e), evaleabs(e2, e))
     }
 
-  def eqabs(x0: typeabs, x1: typeabs): Boolean = (x0, x1) match {
-    case (Undefine(), Undefine()) => true
-    case (Define(x), Define(y)) => Int.equal_int(x, y)
-    case (Define(v), Undefine()) => false
-    case (Undefine(), Define(v)) => false
+  def evalcabsaux(uu: typeabs, uv: typeabs): typeabs = (uu, uv) match {
+    case (Define(x), Define(y)) =>
+      (if (Int.equal_int(x, y)) Define(Int.one_int) else Define(Int.zero_int))
+    case (Undefine(), uv) => Undefine()
+    case (uu, Undefine()) => Undefine()
   }
 
-  def evalcabs(x0: condition, t: List[(List[String.char], typeabs)]): Boolean =
+  def evalcabs(x0: condition, t: List[(List[String.char], typeabs)]): typeabs =
     (x0, t) match {
-      case (Eq(e1, e2), t) => eqabs(evaleabs(e1, t), evaleabs(e2, t))
+      case (Eq(e1, e2), t) => evalcabsaux(evaleabs(e1, t), evaleabs(e2, t))
     }
 
   def affabs(a: (List[String.char], typeabs),
@@ -246,6 +256,13 @@ object Analyzer {
         else (x, y) :: affabs((x1, y1), xs))
     }
 
+  def eqabs(x0: typeabs, x1: typeabs): Boolean = (x0, x1) match {
+    case (Undefine(), Undefine()) => true
+    case (Define(x), Define(y)) => Int.equal_int(x, y)
+    case (Define(v), Undefine()) => false
+    case (Undefine(), Define(v)) => false
+  }
+
   def san5(x0: statement, x1: (Boolean, List[(List[String.char], typeabs)])):
   (Boolean, List[(List[String.char], typeabs)])
   =
@@ -256,8 +273,9 @@ object Analyzer {
           eqabs(evaleabs(expr, st), Define(Int.zero_int)))
           (false, st) else (b, st))
       case (If(conditiona, stat1, stat2), (b, st)) =>
-        (if (evalcabs(conditiona, st)) san5(stat1, (b, st))
-        else san5(stat2, (b, st)))
+        (if (eqabs(evalcabs(conditiona, st), Undefine())) (false, st)
+        else (if (eqabs(evalcabs(conditiona, st), Define(Int.one_int)))
+          san5(stat1, (b, st)) else san5(stat2, (b, st))))
       case (Seq(stat1, stat2), (b, st)) =>
         (if (bcouple(san5(stat1, (b, st)))) san5(stat2, san5(stat1, (b, st)))
         else (false, st))
@@ -269,4 +287,4 @@ object Analyzer {
 
   def safe(p: statement): Boolean = bcouple(san5(p, (true, Nil)))
 
-}
+} /* object tp67 */
