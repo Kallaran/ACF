@@ -379,7 +379,8 @@ value "safe p4"
 
 value "BAD (evalS Skip ([],[],[X 0]))"
 
-
+(* Si san1 accepte un programme alors son Ã©valuation, quelles que soient les entrÃ©es utilisateur (inchan)
+   ne provoquera pas d'exec(0) *)
 lemma correctionsan1:  "(san1 p) \<longrightarrow> ( \<not>(BAD (evalS p ([] , inchan , [])  )))  "
   nitpick[timeout=120]
   quickcheck[tester=narrowing,size=5,timeout=120]
@@ -391,10 +392,16 @@ lemma correctionsan1:  "(san1 p) \<longrightarrow> ( \<not>(BAD (evalS p ([] , i
   
 
 
-(* Si san accepte un programme alors son Ã©valuation, quelles que soient les entrÃ©es utilisateur (inchan)
+(* Si safe accepte un programme alors son Ã©valuation, quelles que soient les entrÃ©es utilisateur (inchan)
    ne provoquera pas d'exec(0) *)
+lemma correction: "(safe p) \<longrightarrow> ( \<not>(BAD (evalS p ([] , inchan , [])  ))) "
+  nitpick[timeout=120]
+  quickcheck[tester=narrowing,size=5,timeout=120]
+  sorry
 
-lemma correction: ""
+
+(* Tout programme inoffensif est accepté par l'analyseur *)
+lemma completude: " (\<not>(BAD (evalS p ([] , inchan , [])  ))) \<longrightarrow> (safe p) "
   nitpick[timeout=120]
   quickcheck[tester=narrowing,size=5,timeout=120]
   sorry

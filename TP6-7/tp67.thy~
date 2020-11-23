@@ -277,25 +277,28 @@ fun bCouple:: "(bool * symTableAbs)  ⇒ bool"
   where
 "bCouple (b, st) = b"
 
-
+(* rend True uniquement si le couple est déjà présent dans la table de symbole ou que le typeAbs du couple est Undefine*)
 fun presentStAbs:: "(string * typeAbs)   ⇒ symTableAbs   ⇒ bool"
   where
 "(presentStAbs (x1, y1) []) = False" | 
-"(presentStAbs (x1, Undefine) _ ) = False" |
+"(presentStAbs (x1, Undefine) _ ) = True" |
 "(presentStAbs (x1, y1) ((x2, y2)#st)) = (if ((x1=x2) \<and> (eqAbs y1 y2) ) 
                                           then True
                                           else (presentStAbs (x1, y1) st) )" 
 
-(* parcours une list symTableAbs équivalente à (string * typeAbs) list  et si un élément se trouve dans la seconde list et est Define et identique alors on le rajoute à la symTableAbs résultat *)
+(* parcours une list symTableAbs équivalente à (string * typeAbs) list *)
+(* et si un élément se trouve dans la seconde list et est Define et identique alors on le rajoute à la symTableAbs résultat *)
+(* si l'élément est Undefine on le rajoute aussi *)
+(* sinon on rajoute le couple (x, Undefine) à la list resultat *)
 fun STunionAux::" symTableAbs   ⇒ symTableAbs   ⇒ symTableAbs  ⇒ symTableAbs "
   where
 "(STunionAux [] st stresul) = stresul" |
-"(STunionAux  ((x,y)#rest) st stresul) =  (if (presentStAbs (x,y) st) then (STunionAux rest st ((x,y)#stresul)) else  (STunionAux rest st stresul)) "
+"(STunionAux  ((x,y)#rest) st stresul) =  (if (presentStAbs (x,y) st) then (STunionAux rest st ((x,y)#stresul)) else  (STunionAux rest st ((x,Undefine)#stresul))) "
 
 (* rend un couple (bool * symTablesAbs) qui est l'union des pires cas de deux couples (bool * symTablesAbs) *)
 fun STunion::" (bool * symTableAbs)   ⇒ (bool * symTableAbs)   ⇒ (bool * symTableAbs)"
   where
-"(STunion (b1, stAbs1) (b2, stAbs2)) = (if (b1 \<and> b2) then (b1, (STunionAux stAbs1 stAbs2 [])) else  (False, (STunionAux stAbs1 stAbs2 [])))  "
+"(STunion (b1, stAbs1) (b2, stAbs2)) = (if (b1 \<and> b2) then (b1,(STunionAux stAbs2 stAbs1 (STunionAux stAbs1 stAbs2 []))) else  (False,(STunionAux stAbs2 stAbs1 (STunionAux stAbs1 stAbs2 []))))  "
 
 
 (* à partir d'un programme, permet de remplacer le bool en entrée par défaut à vrai à faux si un exec 0 arrive *)
@@ -315,32 +318,9 @@ fun san5::"statement ⇒ ( bool * symTableAbs) ⇒ ( bool * symTableAbs)  "
 
 "(san5 (Read string) (b, st)) = (b, (affAbs (string, Undefine) st))"
 
-(* programme accepté si (exec expression) avec expression non 0 *)
-fun san4::"statement ⇒ symTableAbs ⇒ bool"
-  where
-"(san4 Skip  st) = True" |
-"(san4 (Exec expr) st) = (if (eqAbs (evalEAbs expr st)  Undefine) then False else  \<not>(eqAbs (evalEAbs expr st)  (Define 0)) )" |  (* le programme est accepté uniquement si l'évaluation de l'expression ne rend ni Undefine ni Define 0 *) 
-"(san4 (If condition stat1 stat2) st) = (if (evalCAbs condition st ) then (san4 stat1 st) else (san4 stat2 st)) " |  (* on doit évaluer la condition car il est possible que l'un des statements ne soit jamais atteint donc on se fiche si il fait un exec 0*)
-"(san4 (Seq stat1 stat2) st) = (if (san4 stat1 st) then (san4 stat2 st) else False) " |
-"(san4 (Print expression) st) = True" |
-
-"(san4 (Aff string expression) st) = (san4 Skip (affAbs (string, (evalEAbs expression st)) st))   " |  (* a la table de symbole on rajoute la nouvelle valeur pour string *)
-
-"(san4 (Read string) st) = (san4 Skip (affAbs (string, Undefine) st))"
 
 
-(* programme accepté si (exec expression) avec expression non 0 *)
-fun san3::"statement ⇒ symTable ⇒ bool"
-  where
-"(san3 (Exec expr) st) = (if ((evalE expr st)  = 0) then False else True)" |
-"(san3 (If condition stat1 stat2) st) = (if (evalC condition st ) then (san3 stat1 st) else (san3 stat2 st)) " |  (* on doit évaluer la condition car il est possible que l'un des statements ne soit jamais atteint donc on se fiche si il fait un exec 0*)
-"(san3 (Seq stat1 stat2) st) = (if (san3 stat1 st) then (san3 stat2 st) else False) " |
-"(san3 (Print expression) st) = True" |
 
-"(san3 (Aff string expression) st) = (san3 Skip ((string,(evalE expression st))#st))" |
-"(san3 (Read string) st) = (san3 Skip ((string,0)#st))" |
-
-"(san3 Skip st) = True" 
 
 
 
