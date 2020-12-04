@@ -22,11 +22,9 @@ object Converter{
 import Converter._
 
 
-/* The object to complete */
 class ConcreteValidator extends TransValidator{
 
-  var transBdd:List[((Nat.nat, (Nat.nat, Nat.nat)),
-    (Boolean, (Nat.nat, (Nat.nat, Boolean))))] = List()
+  var transBdd:List[((Nat.nat, (Nat.nat, Nat.nat)), (Boolean, (tp89.typeAbs, (Nat.nat, Boolean))))] = List()
   def process(m:message):Unit={
     transBdd = tp89.traiterMessage(m, transBdd )
   }
@@ -108,8 +106,12 @@ object tp89 {
     message
   final case class Cancel(a: (Nat.nat, (Nat.nat, Nat.nat))) extends message
 
+  abstract sealed class typeAbs
+  final case class Define(a: Nat.nat) extends typeAbs
+  final case class Undefine() extends typeAbs
+
   def export(x0: List[((Nat.nat, (Nat.nat, Nat.nat)),
-    (Boolean, (Nat.nat, (Nat.nat, Boolean))))]):
+    (Boolean, (typeAbs, (Nat.nat, Boolean))))]):
   List[((Nat.nat, (Nat.nat, Nat.nat)), Nat.nat)]
   =
     x0 match {
@@ -120,30 +122,42 @@ object tp89 {
       case (transid, (uu, (uv, (uw, true)))) :: rs => export(rs)
     }
 
+  def getNat(x0: typeAbs): Nat.nat = x0 match {
+    case Undefine() => Nat.zero_nat
+    case Define(x) => x
+  }
+
+  def isDefine(x0: typeAbs): Boolean = x0 match {
+    case Undefine() => false
+    case Define(v) => true
+  }
+
   def updateAck(amm: Nat.nat,
-                x1: table.option[(Boolean, (Nat.nat, (Nat.nat, Boolean)))]):
-  (Boolean, (Nat.nat, (Nat.nat, Boolean)))
+                x1: table.option[(Boolean, (typeAbs, (Nat.nat, Boolean)))]):
+  (Boolean, (typeAbs, (Nat.nat, Boolean)))
   =
     (amm, x1) match {
-      case (amm, table.Nonea()) => (false, (Nat.zero_nat, (Nat.zero_nat, true)))
+      case (amm, table.Nonea()) => (false, (Undefine(), (Nat.zero_nat, true)))
       case (amm, table.Somea((valid, (oldAmm, (amc, canceled))))) =>
         (if (valid || canceled) (valid, (oldAmm, (amc, canceled)))
         else (if (Nat.less_eq_nat(amm, amc) && Nat.less_nat(Nat.zero_nat, amc))
-          (true, (amm, (amc, canceled)))
-        else (if (Nat.less_nat(amm, oldAmm))
-          (valid, (amm, (amc, canceled)))
+          (true, (Define(amm), (amc, canceled)))
+        else (if (! (isDefine(oldAmm)) ||
+          Nat.less_nat(amm, getNat(oldAmm)))
+          (valid, (Define(amm), (amc, canceled)))
         else (valid, (oldAmm, (amc, canceled))))))
     }
 
   def updatePay(amc: Nat.nat,
-                x1: table.option[(Boolean, (Nat.nat, (Nat.nat, Boolean)))]):
-  (Boolean, (Nat.nat, (Nat.nat, Boolean)))
+                x1: table.option[(Boolean, (typeAbs, (Nat.nat, Boolean)))]):
+  (Boolean, (typeAbs, (Nat.nat, Boolean)))
   =
     (amc, x1) match {
-      case (amc, table.Nonea()) => (false, (Nat.zero_nat, (Nat.zero_nat, true)))
+      case (amc, table.Nonea()) => (false, (Undefine(), (Nat.zero_nat, true)))
       case (amc, table.Somea((valid, (amm, (oldAmc, canceled))))) =>
         (if (valid || canceled) (valid, (amm, (oldAmc, canceled)))
-        else (if (Nat.less_eq_nat(amm, amc) && Nat.less_nat(Nat.zero_nat, amc))
+        else (if (Nat.less_eq_nat(getNat(amm), amc) &&
+          Nat.less_nat(Nat.zero_nat, amc))
           (true, (amm, (amc, canceled)))
         else (if (Nat.less_nat(oldAmc, amc))
           (valid, (amm, (amc, canceled)))
@@ -158,66 +172,66 @@ object tp89 {
   def traiterMessage(x0: message,
                      transBdd:
                      List[((Nat.nat, (Nat.nat, Nat.nat)),
-                       (Boolean, (Nat.nat, (Nat.nat, Boolean))))]):
+                       (Boolean, (typeAbs, (Nat.nat, Boolean))))]):
   List[((Nat.nat, (Nat.nat, Nat.nat)),
-    (Boolean, (Nat.nat, (Nat.nat, Boolean))))]
+    (Boolean, (typeAbs, (Nat.nat, Boolean))))]
   =
     (x0, transBdd) match {
       case (Cancel(transid), transBdd) =>
         table.modify[(Nat.nat, (Nat.nat, Nat.nat)),
           (Boolean,
-            (Nat.nat,
+            (typeAbs,
               (Nat.nat,
                 Boolean)))](transid,
           (false,
-            (Nat.zero_nat, (Nat.zero_nat, true))),
+            (Undefine(), (Nat.zero_nat, true))),
           transBdd)
       case (Pay(transid, amc), transBdd) =>
         (if (isTransidPresent[(Boolean,
-          (Nat.nat,
+          (typeAbs,
             (Nat.nat,
               Boolean)))](table.assoc[(Nat.nat,
           (Nat.nat, Nat.nat)),
-          (Boolean, (Nat.nat, (Nat.nat, Boolean)))](transid, transBdd)))
+          (Boolean, (typeAbs, (Nat.nat, Boolean)))](transid, transBdd)))
           table.modify[(Nat.nat, (Nat.nat, Nat.nat)),
             (Boolean,
-              (Nat.nat,
+              (typeAbs,
                 (Nat.nat,
                   Boolean)))](transid,
             updatePay(amc,
               table.assoc[(Nat.nat, (Nat.nat, Nat.nat)),
                 (Boolean,
-                  (Nat.nat, (Nat.nat, Boolean)))](transid, transBdd)),
+                  (typeAbs, (Nat.nat, Boolean)))](transid, transBdd)),
             transBdd)
         else table.modify[(Nat.nat, (Nat.nat, Nat.nat)),
           (Boolean,
-            (Nat.nat,
+            (typeAbs,
               (Nat.nat,
                 Boolean)))](transid,
-          (false, (Nat.zero_nat, (amc, false))), transBdd))
+          (false, (Undefine(), (amc, false))), transBdd))
       case (Ack(transid, amm), transBdd) =>
         (if (isTransidPresent[(Boolean,
-          (Nat.nat,
+          (typeAbs,
             (Nat.nat,
               Boolean)))](table.assoc[(Nat.nat,
           (Nat.nat, Nat.nat)),
-          (Boolean, (Nat.nat, (Nat.nat, Boolean)))](transid, transBdd)))
+          (Boolean, (typeAbs, (Nat.nat, Boolean)))](transid, transBdd)))
           table.modify[(Nat.nat, (Nat.nat, Nat.nat)),
             (Boolean,
-              (Nat.nat,
+              (typeAbs,
                 (Nat.nat,
                   Boolean)))](transid,
             updateAck(amm,
               table.assoc[(Nat.nat, (Nat.nat, Nat.nat)),
                 (Boolean,
-                  (Nat.nat, (Nat.nat, Boolean)))](transid, transBdd)),
+                  (typeAbs, (Nat.nat, Boolean)))](transid, transBdd)),
             transBdd)
         else table.modify[(Nat.nat, (Nat.nat, Nat.nat)),
           (Boolean,
-            (Nat.nat,
+            (typeAbs,
               (Nat.nat,
                 Boolean)))](transid,
-          (false, (amm, (Nat.zero_nat, false))), transBdd))
+          (false, (Define(amm), (Nat.zero_nat, false))), transBdd))
     }
 
 } /* object tp89 */

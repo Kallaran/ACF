@@ -18,8 +18,11 @@ datatype message=
 
 type_synonym transaction= "transid * nat"
 
+datatype typeAbs = Define nat | Undefine
+
+
 (* status correspond à (Valid, Amm, Amc, Canceled) *)
-type_synonym status= "bool * nat * nat * bool" 
+type_synonym status= "bool * typeAbs * nat * bool" 
 type_synonym transBdd = "(transid,  status) table"
 
 
@@ -30,36 +33,49 @@ fun isTransidPresent:: "'b option \<Rightarrow> bool"
 "(isTransidPresent None)  = False  " |
 "(isTransidPresent (Some(y)) ) = True "
 
-(* permet d'obtenir le nouveau quadruplet lors d'un message Pay *)
-fun updatePay:: "nat \<Rightarrow> (bool * nat * nat * bool) option \<Rightarrow> (bool * nat * nat * bool)"
+(* rend le boolean True si le typeAbs est Define *)
+fun isDefine:: "typeAbs \<Rightarrow> bool"
   where
-"updatePay Amc None = (False, 0, 0, True)" | (* ce cas n'est pas censé arriver *)
+"isDefine Undefine = False" |
+"isDefine _ = True"
+
+(* permet d'obtenir le nat d'un Define nat d'un typeAbs *)
+fun getNat:: "typeAbs \<Rightarrow> nat"
+  where
+"getNat Undefine = 0" | (*ce cas n'est pas censé arriver *)
+"getNat (Define x) = x"
+
+
+(* permet d'obtenir le nouveau quadruplet lors d'un message Pay *)
+fun updatePay:: "nat \<Rightarrow> (bool * typeAbs * nat * bool) option \<Rightarrow> (bool * typeAbs * nat * bool)"
+  where
+"updatePay Amc None = (False, Undefine, 0, True)" | (* ce cas n'est pas censé arriver *)
 "updatePay Amc (Some(Valid,  Amm , oldAmc , Canceled)) = (if (Valid \<or> Canceled) 
                                                           then (Valid , Amm , oldAmc , Canceled) 
-                                                          else (if ((Amc \<ge> Amm) \<and> (Amc > 0)) 
+                                                          else (if ((Amc \<ge> (getNat Amm)) \<and> (Amc > 0)) 
                                                                 then (True, Amm, Amc, Canceled) 
                                                                 else (if (Amc > oldAmc)
                                                                       then (Valid, Amm, Amc, Canceled)
                                                                       else (Valid, Amm, oldAmc, Canceled)))) "
 
 (* permet d'obtenir le nouveau quadruplet lors d'un message Ack *)
-fun updateAck:: "nat \<Rightarrow> (bool * nat * nat * bool) option \<Rightarrow> (bool * nat * nat * bool)"
+fun updateAck:: "nat \<Rightarrow> (bool * typeAbs * nat * bool) option \<Rightarrow> (bool * typeAbs * nat * bool)"
   where
-"updateAck Amm None = (False, 0, 0, True)" | (* ce cas n'est pas censé arriver *)
+"updateAck Amm None = (False, Undefine, 0, True)" | (* ce cas n'est pas censé arriver *)
 "updateAck Amm (Some(Valid,  oldAmm , Amc , Canceled)) = (if (Valid \<or> Canceled) 
                                                           then (Valid , oldAmm , Amc , Canceled) 
                                                           else (if ((Amm \<le> Amc) \<and> (Amc > 0)) 
-                                                                then (True, Amm, Amc, Canceled) 
-                                                                else (if (Amm < oldAmm)
-                                                                      then (Valid, Amm, Amc, Canceled)
+                                                                then (True, (Define Amm), Amc, Canceled) 
+                                                                else (if (\<not>(isDefine oldAmm) \<or>  (Amm < (getNat oldAmm)))
+                                                                      then (Valid,(Define Amm), Amc, Canceled)
                                                                       else (Valid, oldAmm, Amc, Canceled)))) "
 
 
 (* permet de mettre à jour une transBdd en fonction d'un nouveau message *)
 fun traiterMessage:: "message \<Rightarrow> transBdd  \<Rightarrow> transBdd"
   where
-"traiterMessage (Cancel transid)  transBdd = (modify transid (False, 0, 0, True) transBdd)" | (* EST CE INTERESSANT DE CONSERVER LES ANCIENNES VALEURS ? *)
-"traiterMessage (Pay transid Amc)  transBdd = (if (isTransidPresent (assoc transid transBdd)) then (modify transid (updatePay Amc (assoc transid transBdd)) transBdd ) else (modify transid (False, 0, Amc, False) transBdd) )" | (* AI JE RAISON DE METTRE AMM A 0 LORS DE LA CREATION  ? *)
+"traiterMessage (Cancel transid)  transBdd = (modify transid (False, Undefine, 0, True) transBdd)" | (* EST CE INTERESSANT DE CONSERVER LES ANCIENNES VALEURS ? *)
+"traiterMessage (Pay transid Amc)  transBdd = (if (isTransidPresent (assoc transid transBdd)) then (modify transid (updatePay Amc (assoc transid transBdd)) transBdd ) else (modify transid (False, Undefine, Amc, False) transBdd) )" | (* AI JE RAISON DE METTRE AMM A 0 LORS DE LA CREATION  ? *)
 "traiterMessage (Ack transid Amm)  transBdd = (if (isTransidPresent (assoc transid transBdd)) then (modify transid (updateAck Amm (assoc transid transBdd)) transBdd ) else (modify transid (False, Amm, 0, False) transBdd) )"
 
 
@@ -102,7 +118,7 @@ lemma prop3:"\<not>(List.member ( export (traiterMessage (Cancel transid) (trait
   sorry
 
 (* Toute transaction annulée l'est définitivement : un message (Cancel (c,m,i)) rend impossible la validation d'une transaction de numéro i entre un marchand m et un client c *)
-(* ASK : EN QUOI EST CE DIFFERENT DE PROP3 ? *)
+(* ASK : EN QUOI EST CE DIFFERENT DE PROP3 ? rajouter des messages ne change pas l'annulation *)
 lemma prop4:"True"
   nitpick[timeout=120]
   sorry
