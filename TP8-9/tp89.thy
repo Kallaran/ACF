@@ -102,7 +102,7 @@ lemma prop3:"\<not>(List.member ( export (traiterMessage (Cancel transid) (trait
   sorry
 
 (* Toute transaction annulée l'est définitivement : un message (Cancel (c,m,i)) rend impossible la validation d'une transaction de numéro i entre un marchand m et un client c *)
-(* ASK : EN QUOI EST CE DIFFERENT DE PROP3 ? *)
+(* ASK : EN QUOI EST CE DIFFERENT DE PROP3 ? rajouter des messages ne change pas l'annulation *)
 lemma prop4:"True"
   nitpick[timeout=120]
   sorry
