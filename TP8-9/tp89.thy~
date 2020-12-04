@@ -1,5 +1,5 @@
 theory tp89
-imports Main "~~/src/HOL/Library/Code_Target_Nat" (* pour l'export Scala *)
+imports Main table "~~/src/HOL/Library/Code_Target_Nat" (* pour l'export Scala *)
 
 begin
 
@@ -15,9 +15,13 @@ datatype message=
 | Ack transid nat
 | Cancel transid
 
-datatype transBdd = list
 
 type_synonym transaction= "transid * nat"
+
+(* status correspond à (Valid, Amm, Amc, Canceled) *)
+type_synonym status= "bool * nat * nat * bool" 
+type_synonym transBdd = "(transid,  status) table"
+
 
 (* permet de mettre à jour une transBdd en fonction d'un nouveau message *)
 fun traiterMessage:: "message \<Rightarrow> transBdd  \<Rightarrow> transBdd"
@@ -27,12 +31,56 @@ fun traiterMessage:: "message \<Rightarrow> transBdd  \<Rightarrow> transBdd"
 (* pour obtenir une liste de toutes les transactions validées d'une transBdd*)
 fun export:: "transBdd \<Rightarrow> transaction list"
   where
-"export transBdd = []"
+"export [] = []" |
+"export ((transid, (Valid, Amm, Amc, True))#rs) = (export rs) " | (*cas transaction canceled *)
+"export ((transid, (True, Amm, Amc, False))#rs) = (export rs)" | (*cas transaction valide *)
+"export ((transid, (_, _, _, _))#rs) = (export rs)"
 
 (* permet d'obtenir une transBdd à partir d'une liste de messages *)
-fun traiterMessageList:: "message list \<Rightarrow> transBdd"
+fun traiterMessageList:: " message list  \<Rightarrow> transBdd"
   where
-"(traiterMessageList (a#r)) = []"
+"(traiterMessageList [] ) = [] " |
+"(traiterMessageList (x#rs)) = (traiterMessage x (traiterMessageList rs))"
+
+
+(* Toutes les transactions validées ont un montant strictement supérieur à zero *)
+lemma prop1:"(List.member (export (traiterMessageList a)) (transid, montant)) \<longrightarrow> (montant > 0) "
+  nitpick[timeout=120]
+  sorry
+
+(* Toutes les transactions validées ont un montant strictement supérieur à zero *)
+lemma prop1bis:"(List.member (export bdd) (transid, montant)) \<longrightarrow> (montant > 0) "
+  nitpick[timeout=120]
+  sorry
+
+
+(* Dans la liste de transactions validées, tout triplet (c,m,i)  n'apparaît qu'une seule fois *)
+lemma prop2:"\<not>(List.member (List.remove1 (transid, montanty) (export (traiterMessageList a)) ) (transid, montantx) )  "
+  nitpick[timeout=120]
+  sorry
+
+
+(* Toute transaction (même validée) peut être annulée *)
+(* interprétée ici comme : si un message 'cancel transid' est reçu alors le export de la bdd ne montrera pas de transaction ayant ce transid *)
+lemma prop3:"\<not>(List.member ( export (traiterMessage (Cancel transid) (traiterMessageList a))) (transid, montant))"
+  nitpick[timeout=120]
+  sorry
+
+(* Toute transaction annulée l'est définitivement : un message (Cancel (c,m,i)) rend impossible la validation d'une transaction de numéro i entre un marchand m et un client c *)
+(* ASK : EN QUOI EST CE DIFFERENT DE PROP3 ? *)
+lemma prop4:"True"
+  nitpick[timeout=120]
+  sorry
+
+(* Si un message Pay et un message Ack avec un même identifiant (c, m, i) ont éte envoyés, tels que
+ le montant proposé par le Pay est strictement supérieur à 0, et est supérieur ou égal au montant
+proposé par le message Ack, et s'il n'y a pas eu d'annulation pour (c, m, i), alors une transaction
+pour (c, m, i) figure dans la liste des transactions validées *)
+(* ASK : COMMENT ON FAIT POUR SAVOIR SI IL N'Y A PAS EU D'ANNULATION ? *)
+lemma prop5:"True"
+  nitpick[timeout=120]
+  sorry
+
 
 
 (* ----- Exportation en Scala (Isabelle 2018) -------*)
