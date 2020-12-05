@@ -74,9 +74,9 @@ fun updateAck:: "nat \<Rightarrow> (bool * typeAbs * nat * bool) option \<Righta
 (* permet de mettre à jour une transBdd en fonction d'un nouveau message *)
 fun traiterMessage:: "message \<Rightarrow> transBdd  \<Rightarrow> transBdd"
   where
-"traiterMessage (Cancel transid)  transBdd = (modify transid (False, Undefine, 0, True) transBdd)" | (* EST CE INTERESSANT DE CONSERVER LES ANCIENNES VALEURS ? *)
-"traiterMessage (Pay transid Amc)  transBdd = (if (isTransidPresent (assoc transid transBdd)) then (modify transid (updatePay Amc (assoc transid transBdd)) transBdd ) else (modify transid (False, Undefine, Amc, False) transBdd) )" | (* AI JE RAISON DE METTRE AMM A 0 LORS DE LA CREATION  ? *)
-"traiterMessage (Ack transid Amm)  transBdd = (if (isTransidPresent (assoc transid transBdd)) then (modify transid (updateAck Amm (assoc transid transBdd)) transBdd ) else (modify transid (False, Amm, 0, False) transBdd) )"
+"traiterMessage (Cancel transid)  transBdd = (modify transid (False, Undefine, 0, True) transBdd)" |
+"traiterMessage (Pay transid Amc)  transBdd = (if (isTransidPresent (assoc transid transBdd)) then (modify transid (updatePay Amc (assoc transid transBdd)) transBdd ) else (modify transid (False, Undefine, Amc, False) transBdd) )" |
+"traiterMessage (Ack transid Amm)  transBdd = (if (isTransidPresent (assoc transid transBdd)) then (modify transid (updateAck Amm (assoc transid transBdd)) transBdd ) else (modify transid (False, (Define Amm), 0, False) transBdd) )"
 
 
 
