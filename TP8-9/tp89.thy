@@ -99,12 +99,6 @@ lemma prop1:"(List.member (export (traiterMessageList a)) (transid, montant)) \<
   nitpick[timeout=120]
   sorry
 
-(* Toutes les transactions validées ont un montant strictement supérieur à zero *)
-lemma prop1bis:"(List.member (export bdd) (transid, montant)) \<longrightarrow> (montant > 0) "
-  nitpick[timeout=120]
-  sorry
-
-
 (* Dans la liste de transactions validées, tout triplet (c,m,i)  n'apparaît qu'une seule fois *)
 lemma prop2:"\<not>(List.member (List.remove1 (transid, montanty) (export (traiterMessageList a)) ) (transid, montantx) )  "
   nitpick[timeout=120]
@@ -127,8 +121,7 @@ lemma prop4:"\<not>(List.member ( export (traiterMessage messagey (traiterMessag
  le montant proposé par le Pay est strictement supérieur à 0, et est supérieur ou égal au montant
 proposé par le message Ack, et s'il n'y a pas eu d'annulation pour (c, m, i), alors une transaction
 pour (c, m, i) figure dans la liste des transactions validées *)
-(* ASK : COMMENT ON FAIT POUR SAVOIR SI IL N'Y A PAS EU D'ANNULATION ? *)
-lemma prop5:"True"
+lemma prop5:"(List.member ( export (traiterMessage  (Ack transid  Amm) (traiterMessage (Pay transid Amc) []))) (transid, Amc)) = ((Amc > 0) \<and> (Amc \<ge> Amm))  "
   nitpick[timeout=120]
   sorry
 

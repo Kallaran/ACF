@@ -99,12 +99,6 @@ lemma prop1:"(List.member (export (traiterMessageList a)) (transid, montant)) \<
   nitpick[timeout=120]
   sorry
 
-(* Toutes les transactions validées ont un montant strictement supérieur à zero *)
-lemma prop1bis:"(List.member (export bdd) (transid, montant)) \<longrightarrow> (montant > 0) "
-  nitpick[timeout=120]
-  sorry
-
-
 (* Dans la liste de transactions validées, tout triplet (c,m,i)  n'apparaît qu'une seule fois *)
 lemma prop2:"\<not>(List.member (List.remove1 (transid, montanty) (export (traiterMessageList a)) ) (transid, montantx) )  "
   nitpick[timeout=120]
@@ -118,8 +112,8 @@ lemma prop3:"\<not>(List.member ( export (traiterMessage (Cancel transid) (trait
   sorry
 
 (* Toute transaction annulée l'est définitivement : un message (Cancel (c,m,i)) rend impossible la validation d'une transaction de numéro i entre un marchand m et un client c *)
-(* ASK : EN QUOI EST CE DIFFERENT DE PROP3 ? rajouter des messages ne change pas l'annulation *)
-lemma prop4:"True"
+(*  rajouter des messages ne change pas l'annulation, on en rajoute 2 messagey et messagex car c'est le nombre de message minimum qu'il faut pour valider une transaction *)
+lemma prop4:"\<not>(List.member ( export (traiterMessage messagey (traiterMessage messagex (traiterMessage (Cancel transid) (traiterMessageList a))))) (transid, montant))"
   nitpick[timeout=120]
   sorry
 
