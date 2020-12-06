@@ -122,6 +122,7 @@ lemma prop4:"\<not>(List.member ( export (traiterMessage messagey (traiterMessag
 proposé par le message Ack, et s'il n'y a pas eu d'annulation pour (c, m, i), alors une transaction
 pour (c, m, i) figure dans la liste des transactions validées *)
 (* j'utilise une transBdd [] car je ne vois pas comment garantir sans cela qu'il n'y a pas eu d'annulation *)
+(* OK J AI TROUVE : faut juste regarder dans la liste des messages si il n'y a pas eu de cancel *)
 (* je pourrai vérifier que le transid ne se trouve pas dans la Bdd mais ça ne serait pas totalement exact aussi *)
 (* je pourrai créer une fonction qui prend un transid et une Bdd et qui rend le bool correspondant à Canceled mais ça serait contraire à l'énoncé *)
 lemma prop5:"(List.member ( export (traiterMessage  (Ack transid  Amm) (traiterMessage (Pay transid Amc) []))) (transid, Amc)) = ((Amc > 0) \<and> (Amc \<ge> Amm))  "
@@ -135,20 +136,29 @@ message Ack *)
 
 lemma prop6: "(\<not>(List.member (export (traiterMessageList a)) (transid, montant)) \<and> (List.member (export (traiterMessage (Ack transid Amm ) (traiterMessage (Pay transid Amc)  (traiterMessageList a)))) (transid, montant))) \<longrightarrow> (Amc\<ge>Amm)    "
   nitpick[timeout=120]
-  oups
+  oops
 
 (* comme prop6 mais permet de vérifier que Amc > 0 *)
 (* j'utilise List.count_list pour assurer qu'il n'existe pas dans la transBdd une transaction transid avec un Amc = 0 *)
 lemma prop6bis: "(((List.count_list (traiterMessageList a) (transid, (Valid, oldAmm, 0, Canceled))) = 0 ) \<and>(\<not>(List.member (export (traiterMessageList a)) (transid, montant)) \<and> (List.member (export (traiterMessage (Ack transid Amm ) (traiterMessage (Pay transid Amc)  (traiterMessageList a)))) (transid, montant)))) \<longrightarrow> ((Amc\<ge>Amm) \<and> (Amc > 0))    "
   nitpick[timeout=120]
-  oups
+  oops
 
 
 (*Si un client (resp. marchand) a proposé un montant am pour une transaction, tout montant am'
 inférieur (resp. supérieur) proposé par la suite est ignoré par l'agent de validation *)
-lemma prop7: "True"
+(* si Amc1 > Amc2 et si la transaction dans la transbdd est ni valide ni annulée alors le couple (transid, Amc2) ne se trouve pas dans l'export de la transBdd  *)
+(* en effet le couple qui devrait alors se trouver dans l export serait (transid, Amc1 *)
+lemma prop7: "((Amc1 > Amc2) \<and> \<not>(List.member  (traiterMessageList a) (transid,(valid, amm, oldamc, canceled)))) \<longrightarrow> \<not>(List.member (export (traiterMessage (Pay transid Amc2) (traiterMessage (Pay transid Amc1) (traiterMessageList a))))  (transid, Amc2))"
+  nitpick[timeout=120]
+  oops
+
+(*Toute transaction validée ne peut être renégociée : si une transaction a été validée avec un montant am celui-ci ne peut être changé *)
+(* si un si un transaction avec transid montant1 se trouve dans la liste d'export alors elle restera avec ce montant1 dans cette liste d'export même après recevoir d'autres montant en pay ou ack *)
+lemma prop8: "(List.member (export (traiterMessageList a)) (transid, montant1)) \<longrightarrow> (List.member (export (traiterMessage (Ack transid montant3) (traiterMessage (Pay transid montant2) (traiterMessageList a)))) (transid, montant1)) "
   nitpick[timeout=120]
   sorry
+
 
 (* ----- Exportation en Scala (Isabelle 2018) -------*)
 

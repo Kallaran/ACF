@@ -135,13 +135,13 @@ message Ack *)
 
 lemma prop6: "(\<not>(List.member (export (traiterMessageList a)) (transid, montant)) \<and> (List.member (export (traiterMessage (Ack transid Amm ) (traiterMessage (Pay transid Amc)  (traiterMessageList a)))) (transid, montant))) \<longrightarrow> (Amc\<ge>Amm)    "
   nitpick[timeout=120]
-  sorry
+  oups
 
 (* comme prop6 mais permet de vérifier que Amc > 0 *)
 (* j'utilise List.count_list pour assurer qu'il n'existe pas dans la transBdd une transaction transid avec un Amc = 0 *)
 lemma prop6bis: "(((List.count_list (traiterMessageList a) (transid, (Valid, oldAmm, 0, Canceled))) = 0 ) \<and>(\<not>(List.member (export (traiterMessageList a)) (transid, montant)) \<and> (List.member (export (traiterMessage (Ack transid Amm ) (traiterMessage (Pay transid Amc)  (traiterMessageList a)))) (transid, montant)))) \<longrightarrow> ((Amc\<ge>Amm) \<and> (Amc > 0))    "
   nitpick[timeout=120]
-  sorry
+  oups
 
 
 (*Si un client (resp. marchand) a proposé un montant am pour une transaction, tout montant am'
