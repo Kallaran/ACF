@@ -1,7 +1,4 @@
 [debug] Acquiring lock on file C:\Users\jeand\Documents\ACF\ACF\TP8-9\TP89_ACF\project\target\.sbt-compilation-infos\tp89_acf-compile\.sbt-idea-lock ...
-[error] C:\Users\jeand\Documents\ACF\ACF\TP8-9\TP89_ACF\src\main\scala\validator\ConcreteValidator.scala:1:20: '{' expected but identifier found.
-[error] package validator.<LE_NOM_DE_VOTRE_BINOME>
-[error]                    ^
-[error] C:\Users\jeand\Documents\ACF\ACF\TP8-9\TP89_ACF\src\main\scala\validator\ConcreteValidator.scala:49:1: '}' expected but eof found.
-[error] two errors found
+[warn] 2 feature warnings; re-run with -feature for details
+[warn] one warning found
 [debug] Releasing lock on file C:\Users\jeand\Documents\ACF\ACF\TP8-9\TP89_ACF\project\target\.sbt-compilation-infos\tp89_acf-compile\.sbt-idea-lock.
